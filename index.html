@@ -256,6 +256,8 @@ body {
 .shared-btn{padding:6px 14px;border-radius:var(--r-md);font-size:12px;font-weight:600;border:none;cursor:pointer;transition:all .15s}
 .shared-btn-ack{background:var(--ink-deep);color:var(--on-dark)}
 .shared-btn-ack:hover{background:#333}
+.shared-btn-del{background:transparent;color:var(--stone);border:1px solid var(--hairline-strong);font-size:11px;padding:4px 10px}
+.shared-btn-del:hover{background:#fce4e4;color:#a0232a;border-color:#e8a0a0}
 .shared-btn-ack.done{background:var(--success);cursor:default}
 .shared-input{flex:1;padding:6px 10px;border:1px solid var(--hairline-strong);border-radius:var(--r-md);font-size:12px;font-family:inherit;color:var(--ink);outline:none}
 .shared-input:focus{border-color:var(--primary)}
@@ -541,11 +543,12 @@ function renderShared(items) {
       ? `<div class="shared-time">✓ ${new Date(item.acknowledged_at).toLocaleString('ko-KR')}</div>`
       : '';
 
-    return `<div class="shared-card${item.acknowledged?' decided':''}">
+    return `<div class="shared-card${item.acknowledged?' decided':''}" id="shared-${item.id}">
       <div class="shared-header">
         ${tag}
         <div class="shared-content">${esc(item.content)}</div>
         ${ackBtn}
+        <button class="shared-btn shared-btn-del" onclick="deleteItem(${item.id}, this)" title="삭제">🗑</button>
       </div>
       ${responseArea}
       ${timeStr}
@@ -591,6 +594,26 @@ async function submitResp(id) {
   // Re-render
   const shared = await supaFetch('dashboard_shared_items', '?order=created_at.desc');
   renderShared(shared);
+}
+
+async function deleteItem(id, btn) {
+  if (!confirm('삭제하시겠습니까?')) return;
+  btn.textContent = '...';
+  btn.disabled = true;
+  await fetch(`${SUPABASE_URL}/rest/v1/dashboard_shared_items?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+    }
+  });
+  const card = document.getElementById('shared-'+id);
+  if (card) {
+    card.style.transition = 'all .3s ease';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(20px)';
+    setTimeout(() => card.remove(), 300);
+  }
 }
 </script>
 </body>
