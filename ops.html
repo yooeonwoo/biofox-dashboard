@@ -115,6 +115,27 @@ a{color:var(--primary);text-decoration:none}a:hover{text-decoration:underline}
 .completion-check{color:var(--success);font-weight:700}
 .completion-id{color:var(--steel);font-size:12px;font-weight:500}
 
+/* ═══ Accordion ═══ */
+.acc-parent{display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--hairline-soft);cursor:pointer;transition:background .1s}
+.acc-parent:hover{background:var(--surface-soft)}
+.acc-parent:last-child{border-bottom:none}
+.acc-chevron{font-size:10px;color:var(--stone);transition:transform .2s;width:16px;text-align:center}
+.acc-chevron.open{transform:rotate(90deg)}
+.acc-ws{font-size:11px;font-weight:500;padding:2px 8px;border-radius:var(--r-sm)}
+.acc-title{flex:1;font-size:14px;font-weight:500;color:var(--ink)}
+.acc-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--steel)}
+.acc-dots{display:flex;gap:2px;align-items:center}
+.acc-dot{width:7px;height:7px;border-radius:var(--r-full)}
+.acc-dot-done{background:var(--success)}.acc-dot-ip{background:var(--primary)}.acc-dot-todo{background:#d4d4d4}.acc-dot-blocked{background:var(--error)}
+.acc-count{font-size:11px;font-weight:600;color:var(--slate)}
+.acc-due{font-size:12px}
+.acc-children{display:none;background:var(--surface-soft);border-bottom:1px solid var(--hairline-soft)}
+.acc-children.open{display:block}
+.acc-child{display:flex;align-items:center;gap:8px;padding:8px 20px 8px 46px;font-size:13px;border-bottom:1px solid var(--hairline-soft)}
+.acc-child:last-child{border-bottom:none}
+.acc-child:hover{background:var(--surface)}
+.acc-child-status{font-size:10px;font-weight:600;padding:1px 6px;border-radius:var(--r-full)}
+
 /* Loading & Footer */
 .loading{text-align:center;padding:40px;font-size:14px;color:var(--steel)}
 .spinner{width:24px;height:24px;border:3px solid var(--hairline);border-top-color:var(--primary);border-radius:var(--r-full);animation:spin .8s linear infinite;margin:0 auto 12px}
@@ -173,18 +194,9 @@ a{color:var(--primary);text-decoration:none}a:hover{text-decoration:underline}
   <div class="card"><div class="cal-week" id="cal-week"><div class="loading"><div class="spinner"></div></div></div></div>
 
   <!-- ROW 4: Actions Table -->
-  <h2 class="section-title">📋 전체 액션 아이템 <span id="action-count" style="font-size:14px;color:var(--steel);font-weight:400;margin-left:8px"></span>
-    <span style="margin-left:auto;display:flex;gap:4px">
-      <button id="filter-sub" onclick="setFilter('sub')" style="padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;border:1px solid var(--ink-deep);background:var(--ink-deep);color:var(--on-dark);cursor:pointer">Tasks</button>
-      <button id="filter-parent" onclick="setFilter('parent')" style="padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;border:1px solid var(--hairline);background:var(--canvas);color:var(--slate);cursor:pointer">이슈</button>
-      <button id="filter-all" onclick="setFilter('all')" style="padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;border:1px solid var(--hairline);background:var(--canvas);color:var(--slate);cursor:pointer">전체</button>
-    </span>
-  </h2>
-  <div class="card actions-table-wrap">
-    <table class="actions-table">
-      <thead><tr><th style="width:5%">P</th><th style="width:11%">WS</th><th style="width:33%">제목</th><th style="width:9%">담당</th><th style="width:12%">마감</th><th style="width:10%">상태</th><th style="width:10%">Linear</th></tr></thead>
-      <tbody id="actions-tbody"><tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr></tbody>
-    </table>
+  <h2 class="section-title">📋 액션 아이템 <span id="action-count" style="font-size:14px;color:var(--steel);font-weight:400;margin-left:8px"></span></h2>
+  <div class="card" id="actions-accordion">
+    <div class="loading"><div class="spinner"></div></div>
   </div>
 
   <!-- ROW 5: Completions -->
@@ -207,16 +219,13 @@ function du(d){if(!d)return Infinity;const a=new Date(d),b=new Date();a.setHours
 function fmtDue(d){if(!d)return'<span class="due-ok">—</span>';const days=du(d),dt=new Date(d),l=`${dt.getMonth()+1}/${dt.getDate()}`;if(days<0)return`<span class="due-overdue">${l} (${Math.abs(days)}일 지남)</span>`;if(days<=3)return`<span class="due-soon">${l} (${days}일)</span>`;return`<span class="due-ok">${l}</span>`;}
 
 let ALL_ACTIONS = [];
-let currentFilter = 'sub';
 
-function setFilter(f) {
-  currentFilter = f;
-  ['sub','parent','all'].forEach(k => {
-    const btn = document.getElementById('filter-'+k);
-    if (k === f) { btn.style.background='var(--ink-deep)'; btn.style.color='var(--on-dark)'; btn.style.borderColor='var(--ink-deep)'; }
-    else { btn.style.background='var(--canvas)'; btn.style.color='var(--slate)'; btn.style.borderColor='var(--hairline)'; }
-  });
-  renderActions(ALL_ACTIONS);
+function toggleAcc(idx) {
+  const ch = document.getElementById('acc-'+idx);
+  const chev = document.getElementById('chev-'+idx);
+  const isOpen = ch.classList.contains('open');
+  ch.classList.toggle('open');
+  chev.classList.toggle('open');
 }
 
 // ═══ 1. Pipeline (sub-issue based) ═══
@@ -346,27 +355,63 @@ function renderDeadlines(actions){
   }).join('');
 }
 
-// ═══ 6. Actions Table ═══
+// ═══ 6. Actions Accordion ═══
 function renderActions(actions){
-  let filtered = actions;
-  if (currentFilter === 'sub') filtered = actions.filter(a => a.is_sub);
-  else if (currentFilter === 'parent') filtered = actions.filter(a => !a.is_sub);
-  filtered.sort((a,b)=>a.priority-b.priority||(du(a.due_date)-du(b.due_date)));
-  const subCount = actions.filter(a=>a.is_sub).length;
-  const parentCount = actions.filter(a=>!a.is_sub).length;
-  document.getElementById('action-count').textContent=currentFilter==='sub'?`(${filtered.length} tasks / ${parentCount} 이슈)`:currentFilter==='parent'?`(${parentCount} 이슈)`:  `(${actions.length}건)`;
+  const el=document.getElementById('actions-accordion');
+  const parents=actions.filter(a=>!a.is_sub);
+  const subsByParent={};
+  actions.filter(a=>a.is_sub).forEach(a=>{
+    if(!subsByParent[a.parent_issue_id])subsByParent[a.parent_issue_id]=[];
+    subsByParent[a.parent_issue_id].push(a);
+  });
+
+  // Sort parents: overdue first, then priority, then due date
+  parents.sort((a,b)=>{
+    const aOD=a.due_date&&du(a.due_date)<0?0:1;
+    const bOD=b.due_date&&du(b.due_date)<0?0:1;
+    if(aOD!==bOD)return aOD-bOD;
+    if(a.priority!==b.priority)return a.priority-b.priority;
+    return du(a.due_date)-du(b.due_date);
+  });
+
+  const totalSubs=actions.filter(a=>a.is_sub).length;
+  const doneSubs=actions.filter(a=>a.is_sub&&a.status==='done').length;
+  document.getElementById('action-count').textContent=`(${parents.length}이슈 · ${doneSubs}/${totalSubs} tasks 완료)`;
+
   const sm={todo:'Todo',in_progress:'진행중',done:'완료',blocked:'블로킹'};
-  document.getElementById('actions-tbody').innerHTML=filtered.map(a=>`
-    <tr>
-      <td><span class="priority-dot priority-${a.priority}" title="P${a.priority}"></span></td>
-      <td><span class="ws-tag ws-${a.ws_id}">${WS_NAMES[a.ws_id]||'?'}</span></td>
-      <td style="font-weight:500;color:var(--ink)">${a.is_sub && a.parent_issue_id ? `<span style="font-size:10px;color:var(--steel);background:var(--tint-gray);padding:1px 5px;border-radius:3px;margin-right:4px">${esc(a.parent_issue_id)}</span>` : ''}${esc(a.title)}</td>
-      <td>${esc(a.assignee)}</td>
-      <td>${fmtDue(a.due_date)}</td>
-      <td><span class="badge badge-${a.status}">${sm[a.status]||a.status}</span></td>
-      <td>${a.linear_issue_id?`<a href="${esc(a.linear_url)}" target="_blank">${esc(a.linear_issue_id)}</a>`:'—'}</td>
-    </tr>
-  `).join('');
+  const smBg={todo:'var(--tint-gray)',in_progress:'var(--tint-sky)',done:'#e6f9ee',blocked:'#fce4e4'};
+  const smFg={todo:'var(--slate)',in_progress:'#1a5fa0',done:'#1a7a3a',blocked:'#a0232a'};
+
+  el.innerHTML=parents.map((p,idx)=>{
+    const kids=(subsByParent[p.linear_issue_id]||[]).sort((a,b)=>du(a.due_date)-du(b.due_date));
+    const kDone=kids.filter(k=>k.status==='done').length;
+    const dots=kids.map(k=>`<span class="acc-dot acc-dot-${k.status==='done'?'done':k.status==='in_progress'?'ip':k.status==='blocked'?'blocked':'todo'}"></span>`).join('');
+    const parentDue=fmtDue(p.due_date);
+
+    const childRows=kids.map(k=>{
+      const kDue=fmtDue(k.due_date);
+      return `<div class="acc-child">
+        <span class="priority-dot priority-${k.priority}" style="width:6px;height:6px;flex-shrink:0"></span>
+        <span style="flex:1;color:var(--charcoal)">${esc(k.title)}</span>
+        <span class="acc-child-status" style="background:${smBg[k.status]};color:${smFg[k.status]}">${sm[k.status]}</span>
+        <span class="acc-due">${kDue}</span>
+        ${k.linear_issue_id?`<a href="${esc(k.linear_url)}" target="_blank" style="font-size:11px;color:var(--steel)">${esc(k.linear_issue_id)}</a>`:''}
+      </div>`;
+    }).join('');
+
+    return `<div class="acc-parent" onclick="toggleAcc(${idx})">
+      <span class="acc-chevron" id="chev-${idx}">▶</span>
+      <span class="priority-dot priority-${p.priority}"></span>
+      <span class="acc-ws ws-tag ws-${p.ws_id}">${WS_NAMES[p.ws_id]}</span>
+      <span class="acc-title">${esc(p.title)}</span>
+      <div class="acc-meta">
+        ${kids.length>0?`<div class="acc-dots">${dots}</div><span class="acc-count">${kDone}/${kids.length}</span>`:''}
+        <span class="acc-due">${parentDue}</span>
+        ${p.linear_issue_id?`<a href="${esc(p.linear_url)}" target="_blank" style="font-size:11px;color:var(--steel)" onclick="event.stopPropagation()">${esc(p.linear_issue_id)}</a>`:''}
+      </div>
+    </div>
+    <div class="acc-children" id="acc-${idx}">${childRows}</div>`;
+  }).join('');
 }
 
 // ═══ 7. Completions ═══
