@@ -173,7 +173,13 @@ a{color:var(--primary);text-decoration:none}a:hover{text-decoration:underline}
   <div class="card"><div class="cal-week" id="cal-week"><div class="loading"><div class="spinner"></div></div></div></div>
 
   <!-- ROW 4: Actions Table -->
-  <h2 class="section-title">📋 전체 액션 아이템 <span id="action-count" style="font-size:14px;color:var(--steel);font-weight:400;margin-left:8px"></span></h2>
+  <h2 class="section-title">📋 전체 액션 아이템 <span id="action-count" style="font-size:14px;color:var(--steel);font-weight:400;margin-left:8px"></span>
+    <span style="margin-left:auto;display:flex;gap:4px">
+      <button id="filter-sub" onclick="setFilter('sub')" style="padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;border:1px solid var(--ink-deep);background:var(--ink-deep);color:var(--on-dark);cursor:pointer">Tasks</button>
+      <button id="filter-parent" onclick="setFilter('parent')" style="padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;border:1px solid var(--hairline);background:var(--canvas);color:var(--slate);cursor:pointer">이슈</button>
+      <button id="filter-all" onclick="setFilter('all')" style="padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;border:1px solid var(--hairline);background:var(--canvas);color:var(--slate);cursor:pointer">전체</button>
+    </span>
+  </h2>
   <div class="card actions-table-wrap">
     <table class="actions-table">
       <thead><tr><th style="width:5%">P</th><th style="width:11%">WS</th><th style="width:33%">제목</th><th style="width:9%">담당</th><th style="width:12%">마감</th><th style="width:10%">상태</th><th style="width:10%">Linear</th></tr></thead>
@@ -200,9 +206,23 @@ function esc(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 function du(d){if(!d)return Infinity;const a=new Date(d),b=new Date();a.setHours(0,0,0,0);b.setHours(0,0,0,0);return Math.ceil((a-b)/864e5);}
 function fmtDue(d){if(!d)return'<span class="due-ok">—</span>';const days=du(d),dt=new Date(d),l=`${dt.getMonth()+1}/${dt.getDate()}`;if(days<0)return`<span class="due-overdue">${l} (${Math.abs(days)}일 지남)</span>`;if(days<=3)return`<span class="due-soon">${l} (${days}일)</span>`;return`<span class="due-ok">${l}</span>`;}
 
-// ═══ 1. Pipeline ═══
+let ALL_ACTIONS = [];
+let currentFilter = 'sub';
+
+function setFilter(f) {
+  currentFilter = f;
+  ['sub','parent','all'].forEach(k => {
+    const btn = document.getElementById('filter-'+k);
+    if (k === f) { btn.style.background='var(--ink-deep)'; btn.style.color='var(--on-dark)'; btn.style.borderColor='var(--ink-deep)'; }
+    else { btn.style.background='var(--canvas)'; btn.style.color='var(--slate)'; btn.style.borderColor='var(--hairline)'; }
+  });
+  renderActions(ALL_ACTIONS);
+}
+
+// ═══ 1. Pipeline (sub-issue based) ═══
 function renderPipeline(actions){
   const el=document.getElementById('pipeline');
+  const subs=actions.filter(a=>a.is_sub);
   const todo=actions.filter(a=>a.status==='todo').length;
   const ip=actions.filter(a=>a.status==='in_progress').length;
   const blocked=actions.filter(a=>a.status==='blocked').length;
@@ -328,14 +348,19 @@ function renderDeadlines(actions){
 
 // ═══ 6. Actions Table ═══
 function renderActions(actions){
-  actions.sort((a,b)=>a.priority-b.priority||(du(a.due_date)-du(b.due_date)));
-  document.getElementById('action-count').textContent=`(${actions.length}건)`;
+  let filtered = actions;
+  if (currentFilter === 'sub') filtered = actions.filter(a => a.is_sub);
+  else if (currentFilter === 'parent') filtered = actions.filter(a => !a.is_sub);
+  filtered.sort((a,b)=>a.priority-b.priority||(du(a.due_date)-du(b.due_date)));
+  const subCount = actions.filter(a=>a.is_sub).length;
+  const parentCount = actions.filter(a=>!a.is_sub).length;
+  document.getElementById('action-count').textContent=currentFilter==='sub'?`(${filtered.length} tasks / ${parentCount} 이슈)`:currentFilter==='parent'?`(${parentCount} 이슈)`:  `(${actions.length}건)`;
   const sm={todo:'Todo',in_progress:'진행중',done:'완료',blocked:'블로킹'};
-  document.getElementById('actions-tbody').innerHTML=actions.map(a=>`
+  document.getElementById('actions-tbody').innerHTML=filtered.map(a=>`
     <tr>
       <td><span class="priority-dot priority-${a.priority}" title="P${a.priority}"></span></td>
       <td><span class="ws-tag ws-${a.ws_id}">${WS_NAMES[a.ws_id]||'?'}</span></td>
-      <td style="font-weight:500;color:var(--ink)">${esc(a.title)}</td>
+      <td style="font-weight:500;color:var(--ink)">${a.is_sub && a.parent_issue_id ? `<span style="font-size:10px;color:var(--steel);background:var(--tint-gray);padding:1px 5px;border-radius:3px;margin-right:4px">${esc(a.parent_issue_id)}</span>` : ''}${esc(a.title)}</td>
       <td>${esc(a.assignee)}</td>
       <td>${fmtDue(a.due_date)}</td>
       <td><span class="badge badge-${a.status}">${sm[a.status]||a.status}</span></td>
@@ -358,6 +383,7 @@ async function init(){
       sf('dashboard_actions','?order=priority,due_date'),
       sf('dashboard_recent_completions','?order=completed_at.desc&limit=10'),
     ]);
+    ALL_ACTIONS = actions;
     renderPipeline(actions);
     renderRisk(actions);
     renderDeadlines(actions);
@@ -396,6 +422,7 @@ async function syncLinear(){
       sf('dashboard_actions','?order=priority,due_date'),
       sf('dashboard_recent_completions','?order=completed_at.desc&limit=10'),
     ]);
+    ALL_ACTIONS = actions;
     renderPipeline(actions);
     renderRisk(actions);
     renderDeadlines(actions);

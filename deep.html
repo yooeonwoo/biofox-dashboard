@@ -316,34 +316,42 @@ function renderWSDetails(actions) {
 
     items.sort((a,b) => a.priority - b.priority || (daysUntil(a.due_date) - daysUntil(b.due_date)));
 
+    // Group sub-issues by parent
+    const parents = items.filter(a => !a.is_sub);
+    const subsByParent = {};
+    items.filter(a => a.is_sub).forEach(a => {
+      if (!subsByParent[a.parent_issue_id]) subsByParent[a.parent_issue_id] = [];
+      subsByParent[a.parent_issue_id].push(a);
+    });
+
+    const parentRows = parents.map(p => {
+      const kids = subsByParent[p.linear_issue_id] || [];
+      const kDone = kids.filter(k => k.status === 'done').length;
+      const kTotal = kids.length;
+      const dots = kids.map(k => `<span style="display:inline-block;width:8px;height:8px;border-radius:var(--r-full);margin-right:2px;background:${k.status==='done'?'var(--success)':k.status==='in_progress'?'var(--primary)':'#d4d4d4'}"></span>`).join('');
+      
+      return `<div style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <span style="font-size:11px;color:var(--steel)">${p.linear_issue_id ? `<a href="${esc(p.linear_url)}" target="_blank" style="color:var(--steel)">${esc(p.linear_issue_id)}</a>` : ''}</span>
+          <span style="font-size:13px;font-weight:500;color:var(--ink);flex:1">${esc(p.title)}</span>
+          ${kTotal > 0 ? `<span style="font-size:11px;color:var(--steel)">${kDone}/${kTotal}</span>` : ''}
+        </div>
+        ${kTotal > 0 ? `<div style="display:flex;align-items:center;gap:4px;padding-left:2px">${dots}</div>` : ''}
+      </div>`;
+    }).join('');
+
     return `<div class="card">
       <div class="ws-detail">
         <div class="ws-detail-header">
           <span class="ws-detail-name">${w.icon} ${w.name}</span>
           <div class="ws-detail-stats">
-            <div class="ws-stat"><div class="ws-stat-val" style="color:var(--ink)">${items.length}</div><div class="ws-stat-label">전체</div></div>
+            <div class="ws-stat"><div class="ws-stat-val" style="color:var(--ink)">${parents.length}</div><div class="ws-stat-label">이슈</div></div>
             <div class="ws-stat"><div class="ws-stat-val" style="color:var(--success)">${done}</div><div class="ws-stat-label">완료</div></div>
             <div class="ws-stat"><div class="ws-stat-val" style="color:var(--primary)">${ip}</div><div class="ws-stat-label">진행</div></div>
             <div class="ws-stat"><div class="ws-stat-val" style="color:${overdue>0?'var(--error)':'var(--steel)'}">${overdue}</div><div class="ws-stat-label">지연</div></div>
           </div>
         </div>
-        ${items.map(a => {
-          const days = daysUntil(a.due_date);
-          let dueClass = 'due', dueText = '—';
-          if (a.due_date) {
-            const d = new Date(a.due_date);
-            dueText = `${d.getMonth()+1}/${d.getDate()}`;
-            if (days < 0 && a.status !== 'done') { dueClass = 'due overdue'; dueText += ` (${Math.abs(days)}일↑)`; }
-            else if (days <= 3) { dueClass = 'due soon'; }
-          }
-          const statusMap = {todo:'Todo',in_progress:'진행',done:'완료',blocked:'블로킹'};
-          return `<div class="issue-mini">
-            <span class="priority-dot p${a.priority}"></span>
-            <span class="title">${a.linear_issue_id ? `<a href="${esc(a.linear_url)}" target="_blank" style="color:var(--steel);font-size:11px;margin-right:4px">${esc(a.linear_issue_id)}</a>` : ''}${esc(a.title)}</span>
-            <span class="status-sm status-sm-${a.status}">${statusMap[a.status]||a.status}</span>
-            <span class="${dueClass}">${dueText}</span>
-          </div>`;
-        }).join('')}
+        ${parentRows}
       </div>
     </div>`;
   }).join('');
