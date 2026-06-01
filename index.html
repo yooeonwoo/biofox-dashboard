@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIOFOX Marketing Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   Notion-style Design Tokens
+   ═══════════════════════════════════════════ */
+:root {
+  --primary: #2383e2;
+  --brand-navy: #191919;
+  --brand-navy-mid: #2b2b2b;
+  --brand-pink: #e255a1;
+  --brand-orange: #e07839;
+  --brand-purple: #9065e0;
+  --brand-teal: #2eaadc;
+  --brand-green: #4dab5c;
+  --tint-yellow-bold: #f5c518;
+  --tint-mint: #e0f5ed;
+  --tint-lavender: #ede4f7;
+  --tint-peach: #fdeae1;
+  --tint-gray: #f1f1ef;
+  --canvas: #ffffff;
+  --surface: #f7f6f3;
+  --surface-soft: #fafaf8;
+  --hairline: #e9e9e7;
+  --hairline-soft: #f0f0ee;
+  --hairline-strong: #d3d3d0;
+  --ink-deep: #0f0f0f;
+  --ink: #1a1a1a;
+  --charcoal: #37352f;
+  --slate: #6b6b6b;
+  --steel: #9b9a97;
+  --stone: #afafad;
+  --on-dark: #ffffff;
+  --on-dark-muted: rgba(255,255,255,0.65);
+  --success: #2ecc71;
+  --warning: #e67e22;
+  --error: #e74c3c;
+  --r-xs: 4px; --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-full: 9999px;
+  --shadow-card: rgba(15,15,15,0.08) 0px 4px 12px 0px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', -apple-system, system-ui, 'Segoe UI', Helvetica, sans-serif;
+  background: var(--surface);
+  color: var(--charcoal);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+
+/* ═══ Hero ═══ */
+.hero {
+  background: var(--brand-navy);
+  color: var(--on-dark);
+  padding: 64px 0 48px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 24px; right: 80px;
+  width: 12px; height: 12px;
+  background: var(--brand-pink);
+  border-radius: var(--r-full);
+  box-shadow:
+    -40px 30px 0 var(--brand-teal),
+    -120px -10px 0 var(--tint-yellow-bold),
+    60px 60px 0 var(--brand-purple),
+    -200px 50px 0 var(--brand-green),
+    120px -20px 0 var(--brand-orange);
+}
+.hero-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+  text-align: center;
+}
+.hero h1 { font-size: 56px; font-weight: 600; line-height: 1.10; letter-spacing: -1px; margin-bottom: 12px; }
+.hero .subtitle { font-size: 18px; font-weight: 400; line-height: 1.50; color: var(--on-dark-muted); margin-bottom: 8px; }
+.hero .date-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--r-full);
+  padding: 6px 16px;
+  font-size: 13px; font-weight: 600; color: var(--on-dark-muted);
+  margin-bottom: 24px;
+}
+.hero .date-badge .dot {
+  width: 8px; height: 8px; border-radius: var(--r-full);
+  background: var(--success); animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* ═══ Summary KPI ═══ */
+.summary-strip {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  margin-top: -40px; position: relative; z-index: 2; margin-bottom: 40px;
+}
+.summary-card {
+  background: var(--canvas); border: 1px solid var(--hairline);
+  border-radius: var(--r-lg); padding: 24px;
+  box-shadow: var(--shadow-card); text-align: center;
+}
+.summary-card .label {
+  font-size: 13px; font-weight: 600; color: var(--steel);
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+}
+.summary-card .value { font-size: 36px; font-weight: 700; color: var(--ink); line-height: 1.1; }
+.summary-card .sub { font-size: 13px; color: var(--slate); margin-top: 4px; }
+.summary-card .value.green { color: var(--success); }
+.summary-card .value.orange { color: var(--warning); }
+.summary-card .value.red { color: var(--error); }
+
+/* ═══ Section ═══ */
+.section-title {
+  font-size: 22px; font-weight: 600; color: var(--ink);
+  margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+}
+
+/* ═══ WS Table ═══ */
+.ws-table-wrap {
+  background: var(--canvas); border: 1px solid var(--hairline);
+  border-radius: var(--r-lg); overflow: hidden;
+  box-shadow: var(--shadow-card); margin-bottom: 40px;
+}
+.ws-table { width: 100%; border-collapse: collapse; }
+.ws-table thead th {
+  background: var(--surface); padding: 12px 16px;
+  font-size: 12px; font-weight: 600; color: var(--steel);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  text-align: left; border-bottom: 1px solid var(--hairline);
+}
+.ws-table tbody td {
+  padding: 14px 16px; font-size: 14px;
+  border-bottom: 1px solid var(--hairline-soft); vertical-align: middle;
+}
+.ws-table tbody tr:last-child td { border-bottom: none; }
+.ws-table tbody tr:hover { background: var(--surface-soft); }
+
+.ws-name { font-weight: 500; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+
+.status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border-radius: var(--r-full); font-size: 12px; font-weight: 600;
+}
+.status-badge .dot { width: 8px; height: 8px; border-radius: var(--r-full); }
+.status-on_track { background: #e6f9ee; color: #1a7a3a; }
+.status-on_track .dot { background: var(--success); }
+.status-at_risk { background: #fef3e2; color: #9a5b13; }
+.status-at_risk .dot { background: var(--warning); }
+.status-blocked { background: #fce4e4; color: #a0232a; }
+.status-blocked .dot { background: var(--error); }
+.status-not_started { background: var(--tint-gray); color: var(--slate); }
+.status-not_started .dot { background: var(--stone); }
+
+.progress-bar-wrap { display: flex; align-items: center; gap: 10px; }
+.progress-bar { flex: 1; height: 6px; background: var(--hairline); border-radius: var(--r-full); overflow: hidden; }
+.progress-bar .fill { height: 100%; border-radius: var(--r-full); transition: width 0.3s ease; }
+.fill-on_track { background: var(--success); }
+.fill-at_risk { background: var(--warning); }
+.fill-blocked { background: var(--error); }
+.fill-not_started { background: var(--stone); }
+.progress-pct { font-size: 13px; font-weight: 600; color: var(--slate); min-width: 36px; text-align: right; }
+
+.driver-tag {
+  font-size: 12px; font-weight: 500; padding: 2px 8px;
+  border-radius: var(--r-sm); background: var(--tint-lavender); color: #6b4fa0;
+  display: inline-block; margin-right: 4px;
+}
+.driver-tag.external { background: var(--tint-peach); color: #9a5b13; }
+.issue-text { font-size: 13px; color: var(--slate); }
+
+/* ═══ Two col ═══ */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px; }
+
+/* ═══ Blockers ═══ */
+.blockers-card {
+  background: #fff8e1; border: 1px solid #f0e0a0;
+  border-radius: var(--r-lg); padding: 24px; box-shadow: var(--shadow-card);
+}
+.blocker-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+.blocker-item:last-child { border-bottom: none; }
+.blocker-num {
+  width: 24px; height: 24px; background: var(--warning); color: white;
+  border-radius: var(--r-full); display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+.blocker-text { font-size: 14px; color: var(--charcoal); line-height: 1.5; }
+.blocker-text .ws-ref { font-weight: 600; color: var(--brand-orange); }
+
+/* ═══ Milestones ═══ */
+.milestones-card {
+  background: var(--tint-mint); border: 1px solid #b8e6d0;
+  border-radius: var(--r-lg); padding: 24px; box-shadow: var(--shadow-card);
+}
+.milestone-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; }
+.milestone-check {
+  width: 20px; height: 20px; border: 2px solid var(--brand-green);
+  border-radius: var(--r-xs); flex-shrink: 0; margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--brand-green);
+}
+.milestone-check.done { background: var(--brand-green); color: white; }
+.milestone-text { font-size: 14px; color: var(--charcoal); line-height: 1.5; }
+
+/* ═══ PM Comment ═══ */
+.pm-comment {
+  background: var(--brand-navy-mid); color: var(--on-dark);
+  border-radius: var(--r-lg); padding: 24px 32px; margin-bottom: 40px;
+  display: flex; align-items: flex-start; gap: 16px; box-shadow: var(--shadow-card);
+}
+.pm-avatar {
+  width: 40px; height: 40px; border-radius: var(--r-full);
+  background: var(--brand-purple); display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 700; flex-shrink: 0;
+}
+.pm-comment-body { flex: 1; }
+.pm-comment-body .pm-name { font-size: 13px; font-weight: 600; color: var(--on-dark-muted); margin-bottom: 4px; }
+.pm-comment-body .pm-text { font-size: 16px; font-weight: 400; line-height: 1.55; }
+
+/* ═══ Loading ═══ */
+.loading {
+  text-align: center; padding: 80px 0; font-size: 16px; color: var(--steel);
+}
+.loading .spinner {
+  width: 32px; height: 32px; border: 3px solid var(--hairline);
+  border-top-color: var(--primary); border-radius: var(--r-full);
+  animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ═══ Footer ═══ */
+.footer { text-align: center; padding: 32px 0 48px; font-size: 12px; color: var(--steel); }
+
+/* ═══ Responsive ═══ */
+@media (max-width: 1023px) {
+  .hero h1 { font-size: 40px; }
+  .summary-strip { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+}
+@media (max-width: 767px) {
+  .hero h1 { font-size: 32px; }
+  .summary-strip { grid-template-columns: 1fr; }
+  .page { padding: 0 16px; }
+  .hero-inner { padding: 0 16px; }
+  .ws-table-wrap { overflow-x: auto; }
+  .ws-table { min-width: 700px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="date-badge">
+      <span class="dot"></span>
+      <span id="hero-date">Loading...</span>
+    </div>
+    <h1>BIOFOX Marketing<br>Dashboard</h1>
+    <p class="subtitle">8 Workstreams · PM 유언우 · 조대표님 보고용</p>
+  </div>
+</section>
+
+<!-- Content -->
+<div class="page">
+
+  <!-- KPI Strip -->
+  <div class="summary-strip" id="kpi-strip">
+    <div class="loading"><div class="spinner"></div>데이터 로딩중...</div>
+  </div>
+
+  <!-- WS Table -->
+  <h2 class="section-title"><span class="icon">🚦</span> 8 Workstream Status</h2>
+  <div class="ws-table-wrap">
+    <table class="ws-table">
+      <thead>
+        <tr>
+          <th style="width:24%">워크스트림</th>
+          <th style="width:13%">상태</th>
+          <th style="width:20%">진척</th>
+          <th style="width:13%">담당</th>
+          <th style="width:30%">핵심 이슈</th>
+        </tr>
+      </thead>
+      <tbody id="ws-tbody">
+        <tr><td colspan="5" class="loading"><div class="spinner"></div>데이터 로딩중...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Blockers + Milestones -->
+  <div class="two-col">
+    <div>
+      <h2 class="section-title"><span class="icon">🔴</span> Top Blockers</h2>
+      <div class="blockers-card" id="blockers-card">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+    <div>
+      <h2 class="section-title"><span class="icon">📅</span> 이번 주 마일스톤</h2>
+      <div class="milestones-card" id="milestones-card">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PM Comment -->
+  <div class="pm-comment" id="pm-comment" style="display:none;">
+    <div class="pm-avatar">유</div>
+    <div class="pm-comment-body">
+      <div class="pm-name" id="pm-name"></div>
+      <div class="pm-text" id="pm-text"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer" id="footer">BIOFOX Marketing · Loading...</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// Supabase Config
+// ═══════════════════════════════════════════
+const SUPABASE_URL = 'https://ldqvreaivjrvrvpitcqx.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkcXZyZWFpdmpydnJ2cGl0Y3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyOTEzMDYsImV4cCI6MjA3Njg2NzMwNn0.GMpmq4tal4kvcW6_P_LOxCWc8XrVh6LX51sQ2L5WyEQ';
+
+async function supaFetch(table, query = '') {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`, {
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  if (!res.ok) throw new Error(`${table}: ${res.status}`);
+  return res.json();
+}
+
+// ═══════════════════════════════════════════
+// Renderers
+// ═══════════════════════════════════════════
+
+function renderKPI(metrics) {
+  const strip = document.getElementById('kpi-strip');
+  metrics.sort((a, b) => a.sort_order - b.sort_order);
+  strip.innerHTML = metrics.map(m => `
+    <div class="summary-card">
+      <div class="label">${esc(m.label)}</div>
+      <div class="value ${esc(m.color)}">${esc(m.value)}</div>
+      <div class="sub">${esc(m.sub_text)}</div>
+    </div>
+  `).join('');
+}
+
+function renderWS(rows) {
+  const tbody = document.getElementById('ws-tbody');
+  rows.sort((a, b) => a.id - b.id);
+  tbody.innerHTML = rows.map(ws => {
+    const drivers = ws.driver.split('+').map(d => {
+      const trimmed = d.trim();
+      const isExt = ws.driver_type === 'external' || ['대행사', '광원', '지환'].includes(trimmed);
+      return `<span class="driver-tag${isExt ? ' external' : ''}">${esc(trimmed)}</span>`;
+    }).join('');
+
+    return `
+      <tr>
+        <td><span class="ws-name"><span class="ws-icon">${ws.icon}</span> ${esc(ws.name)}</span></td>
+        <td><span class="status-badge status-${ws.status}"><span class="dot"></span>${esc(ws.status_label)}</span></td>
+        <td>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar"><div class="fill fill-${ws.status}" style="width:${ws.progress}%"></div></div>
+            <span class="progress-pct">${ws.progress}%</span>
+          </div>
+        </td>
+        <td>${drivers}</td>
+        <td><span class="issue-text">${esc(ws.issue_text)}</span></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderBlockers(blockers) {
+  const card = document.getElementById('blockers-card');
+  const active = blockers.filter(b => !b.resolved);
+  active.sort((a, b) => a.rank - b.rank);
+  if (active.length === 0) {
+    card.innerHTML = '<div style="padding:16px;text-align:center;color:var(--steel);">🎉 블로커 없음!</div>';
+    return;
+  }
+  card.innerHTML = active.map(b => `
+    <div class="blocker-item">
+      <span class="blocker-num">${b.rank}</span>
+      <span class="blocker-text"><span class="ws-ref">${esc(b.ws_ref)}</span> — ${esc(b.description)}</span>
+    </div>
+  `).join('');
+}
+
+function renderSnapshot(snapshot) {
+  const milCard = document.getElementById('milestones-card');
+  const pmComment = document.getElementById('pm-comment');
+
+  if (!snapshot) {
+    milCard.innerHTML = '<div style="padding:16px;text-align:center;color:var(--steel);">스냅샷 없음</div>';
+    return;
+  }
+
+  const milestones = snapshot.milestones || [];
+  milCard.innerHTML = milestones.map(m => `
+    <div class="milestone-item">
+      <span class="milestone-check${m.done ? ' done' : ''}">${m.done ? '✓' : '—'}</span>
+      <span class="milestone-text">${esc(m.text)}</span>
+    </div>
+  `).join('');
+
+  if (snapshot.pm_comment) {
+    pmComment.style.display = 'flex';
+    document.getElementById('pm-name').textContent = `${snapshot.pm_name} · 주간 코멘트`;
+    document.getElementById('pm-text').textContent = snapshot.pm_comment;
+  }
+}
+
+function esc(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatDate(d) {
+  const days = ['일','월','화','수','목','금','토'];
+  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${days[d.getDay()]}) 기준`;
+}
+
+// ═══════════════════════════════════════════
+// Init
+// ═══════════════════════════════════════════
+async function init() {
+  try {
+    const [kpis, ws, blockers, snapshots] = await Promise.all([
+      supaFetch('dashboard_kpi_metrics', '?order=sort_order'),
+      supaFetch('dashboard_ws_status', '?order=id'),
+      supaFetch('dashboard_blockers', '?order=rank'),
+      supaFetch('dashboard_weekly_snapshot', '?order=week_start.desc&limit=1'),
+    ]);
+
+    renderKPI(kpis);
+    renderWS(ws);
+    renderBlockers(blockers);
+    renderSnapshot(snapshots[0] || null);
+
+    // Update date
+    const now = new Date();
+    document.getElementById('hero-date').textContent = formatDate(now);
+    document.getElementById('footer').textContent =
+      `BIOFOX Marketing · Last updated: ${now.toISOString().slice(0,16).replace('T',' ')} · PM: eonwoo yoo`;
+
+  } catch (err) {
+    console.error('Dashboard load failed:', err);
+    document.getElementById('kpi-strip').innerHTML =
+      `<div class="loading" style="grid-column:1/-1;color:var(--error);">❌ 데이터 로드 실패: ${esc(err.message)}</div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
