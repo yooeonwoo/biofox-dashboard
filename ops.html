@@ -130,11 +130,16 @@ a{color:var(--primary);text-decoration:none}a:hover{text-decoration:underline}
 <section class="hero">
   <div class="hero-inner">
     <div><h1>PM Operations</h1><p class="subtitle" id="hero-date">Loading...</p></div>
-    <nav class="hero-nav">
-      <a href="index.html">📊 L1 Executive</a>
-      <a href="ops.html" class="active">⚙️ L2 Operations</a>
-      <a href="deep.html">🔬 L3 Deep Dive</a>
-    </nav>
+    <div style="display:flex;align-items:center;gap:16px">
+      <nav class="hero-nav">
+        <a href="index.html">📊 L1 Executive</a>
+        <a href="ops.html" class="active">⚙️ L2 Operations</a>
+        <a href="deep.html">🔬 L3 Deep Dive</a>
+      </nav>
+      <button id="sync-btn" onclick="syncLinear()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--on-dark);background:var(--brand-purple);border:none;cursor:pointer;transition:all .15s;white-space:nowrap">
+        <span id="sync-icon">🔄</span> Linear 동기화
+      </button>
+    </div>
   </div>
 </section>
 
@@ -370,6 +375,45 @@ async function init(){
   }
 }
 init();
+
+// ═══ Sync Button ═══
+async function syncLinear(){
+  const btn=document.getElementById('sync-btn');
+  const icon=document.getElementById('sync-icon');
+  btn.disabled=true;
+  btn.style.opacity='0.6';
+  icon.style.animation='spin 0.8s linear infinite';
+  icon.textContent='⏳';
+
+  try{
+    // Re-fetch all data from Supabase
+    const[actions,completions]=await Promise.all([
+      sf('dashboard_actions','?order=priority,due_date'),
+      sf('dashboard_recent_completions','?order=completed_at.desc&limit=10'),
+    ]);
+    renderPipeline(actions);
+    renderRisk(actions);
+    renderDeadlines(actions);
+    renderWSBars(actions);
+    renderCalendar(actions);
+    renderActions(actions);
+    renderCompletions(completions);
+
+    // Update timestamp
+    const now=new Date();
+    const ts=`${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+    document.getElementById('footer').textContent=`BIOFOX PM Ops · Synced: ${ts} · Linear 데이터 변경은 PM에게 요청`;
+
+    icon.textContent='✅';
+    icon.style.animation='none';
+    setTimeout(()=>{icon.textContent='🔄';btn.disabled=false;btn.style.opacity='1';},2000);
+  }catch(err){
+    icon.textContent='❌';
+    icon.style.animation='none';
+    alert('동기화 실패: '+err.message);
+    setTimeout(()=>{icon.textContent='🔄';btn.disabled=false;btn.style.opacity='1';},2000);
+  }
+}
 </script>
 </body>
 </html>
