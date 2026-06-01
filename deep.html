@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIOFOX Deep Dive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #2383e2; --brand-navy: #191919; --brand-navy-mid: #2b2b2b;
+  --brand-pink: #e255a1; --brand-orange: #e07839; --brand-purple: #9065e0;
+  --brand-teal: #2eaadc; --brand-green: #4dab5c; --tint-yellow-bold: #f5c518;
+  --tint-mint: #e0f5ed; --tint-lavender: #ede4f7; --tint-peach: #fdeae1;
+  --tint-sky: #dbeafe; --tint-gray: #f1f1ef; --tint-rose: #fce4ec;
+  --canvas: #ffffff; --surface: #f7f6f3; --surface-soft: #fafaf8;
+  --hairline: #e9e9e7; --hairline-soft: #f0f0ee; --hairline-strong: #d3d3d0;
+  --ink-deep: #0f0f0f; --ink: #1a1a1a; --charcoal: #37352f;
+  --slate: #6b6b6b; --steel: #9b9a97; --stone: #afafad;
+  --on-dark: #ffffff; --on-dark-muted: rgba(255,255,255,0.65);
+  --success: #2ecc71; --warning: #e67e22; --error: #e74c3c;
+  --r-xs: 4px; --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-full: 9999px;
+  --shadow-card: rgba(15,15,15,0.08) 0px 4px 12px 0px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: var(--surface); color: var(--charcoal); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.page { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Hero */
+.hero { background: var(--brand-navy); color: var(--on-dark); padding: 48px 0 40px; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: 16px; right: 60px; width: 10px; height: 10px; background: var(--brand-orange); border-radius: var(--r-full); box-shadow: -30px 20px 0 var(--brand-pink), -80px -5px 0 var(--brand-purple), 50px 40px 0 var(--brand-teal), 100px -15px 0 var(--tint-yellow-bold); }
+.hero-inner { max-width: 1280px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
+.hero h1 { font-size: 36px; font-weight: 600; line-height: 1.15; letter-spacing: -0.5px; }
+.hero .subtitle { font-size: 14px; color: var(--on-dark-muted); margin-top: 4px; }
+.hero-nav { display: flex; gap: 8px; }
+.hero-nav a { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--r-md); font-size: 13px; font-weight: 500; color: var(--on-dark); border: 1px solid rgba(255,255,255,0.15); transition: background 0.15s; }
+.hero-nav a:hover { background: rgba(255,255,255,0.08); text-decoration: none; }
+.hero-nav a.active { background: var(--primary); border-color: var(--primary); }
+
+/* Sections */
+.section-title { font-size: 20px; font-weight: 600; color: var(--ink); margin: 32px 0 12px; display: flex; align-items: center; gap: 8px; }
+.card { background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-lg); box-shadow: var(--shadow-card); margin-bottom: 24px; overflow: hidden; }
+.card-header { padding: 16px 20px; border-bottom: 1px solid var(--hairline); font-size: 15px; font-weight: 600; color: var(--ink); display: flex; align-items: center; justify-content: space-between; }
+.card-body { padding: 20px; }
+
+/* Filter tabs */
+.filter-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-tab { padding: 5px 12px; border-radius: var(--r-full); font-size: 12px; font-weight: 600; border: 1px solid var(--hairline); background: var(--canvas); color: var(--slate); cursor: pointer; transition: all 0.15s; }
+.filter-tab:hover { border-color: var(--primary); color: var(--primary); }
+.filter-tab.active { background: var(--ink-deep); color: var(--on-dark); border-color: var(--ink-deep); }
+
+/* Grids */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+
+/* WS Detail Card */
+.ws-detail { padding: 20px; }
+.ws-detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.ws-detail-name { font-size: 18px; font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+.ws-detail-stats { display: flex; gap: 16px; }
+.ws-stat { text-align: center; }
+.ws-stat-val { font-size: 24px; font-weight: 700; line-height: 1.1; }
+.ws-stat-label { font-size: 11px; color: var(--steel); margin-top: 2px; }
+
+/* Issue mini list */
+.issue-mini { padding: 8px 0; border-bottom: 1px solid var(--hairline-soft); display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.issue-mini:last-child { border-bottom: none; }
+.issue-mini .priority-dot { width: 6px; height: 6px; border-radius: var(--r-full); flex-shrink: 0; }
+.p1 { background: var(--error); } .p2 { background: var(--warning); } .p3 { background: var(--primary); } .p4 { background: var(--stone); }
+.issue-mini .title { flex: 1; color: var(--charcoal); }
+.issue-mini .due { font-size: 12px; color: var(--steel); min-width: 48px; text-align: right; }
+.issue-mini .due.overdue { color: var(--error); font-weight: 600; }
+.issue-mini .due.soon { color: var(--warning); font-weight: 500; }
+
+/* Status badge small */
+.status-sm { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: var(--r-full); }
+.status-sm-todo { background: var(--tint-gray); color: var(--slate); }
+.status-sm-in_progress { background: var(--tint-sky); color: #1a5fa0; }
+.status-sm-done { background: #e6f9ee; color: #1a7a3a; }
+.status-sm-blocked { background: #fce4e4; color: #a0232a; }
+
+/* Heatmap grid */
+.heatmap { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+.heatmap-cell { border-radius: var(--r-md); padding: 16px 8px; text-align: center; }
+.heatmap-cell .h-val { font-size: 20px; font-weight: 700; }
+.heatmap-cell .h-label { font-size: 11px; margin-top: 4px; }
+.heatmap-cell .h-sub { font-size: 10px; margin-top: 2px; opacity: 0.7; }
+
+/* Priority breakdown */
+.priority-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--hairline-soft); }
+.priority-row:last-child { border-bottom: none; }
+.priority-label { font-size: 13px; font-weight: 600; min-width: 80px; display: flex; align-items: center; gap: 6px; }
+.priority-bar-wrap { flex: 1; display: flex; align-items: center; gap: 8px; }
+.priority-bar { height: 8px; border-radius: var(--r-full); transition: width 0.3s; }
+.priority-count { font-size: 13px; font-weight: 600; color: var(--ink); min-width: 24px; }
+
+/* Due analysis */
+.due-ring { display: flex; align-items: center; gap: 24px; }
+.ring-visual { position: relative; width: 120px; height: 120px; flex-shrink: 0; }
+.ring-visual svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-visual .ring-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+.ring-center-val { font-size: 24px; font-weight: 700; color: var(--ink); }
+.ring-center-label { font-size: 11px; color: var(--steel); }
+.due-legend { flex: 1; }
+.due-legend-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 13px; }
+.due-legend-dot { width: 10px; height: 10px; border-radius: var(--r-full); flex-shrink: 0; }
+
+/* Loading & Footer */
+.loading { text-align: center; padding: 40px; font-size: 14px; color: var(--steel); }
+.spinner { width: 24px; height: 24px; border: 3px solid var(--hairline); border-top-color: var(--primary); border-radius: var(--r-full); animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.footer { text-align: center; padding: 24px 0 40px; font-size: 12px; color: var(--steel); }
+
+/* Responsive */
+@media (max-width: 1023px) { .two-col, .three-col { grid-template-columns: 1fr; } .heatmap { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 767px) { .page { padding: 0 16px; } .hero-inner { flex-direction: column; gap: 16px; text-align: center; } .hero h1 { font-size: 28px; } .hero-nav { justify-content: center; flex-wrap: wrap; } .heatmap { grid-template-columns: repeat(2, 1fr); } .due-ring { flex-direction: column; } }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <h1>Deep Dive</h1>
+      <p class="subtitle" id="hero-date">Loading...</p>
+    </div>
+    <nav class="hero-nav">
+      <a href="index.html">📊 L1 Executive</a>
+      <a href="ops.html">⚙️ L2 Operations</a>
+      <a href="deep.html" class="active">🔬 L3 Deep Dive</a>
+    </nav>
+  </div>
+</section>
+
+<div class="page">
+
+  <!-- ═══ HEATMAP: WS × 마감준수 ═══ -->
+  <h2 class="section-title">🗺️ WS 건강도 히트맵</h2>
+  <div class="card"><div class="card-body"><div class="heatmap" id="heatmap"><div class="loading"><div class="spinner"></div></div></div></div></div>
+
+  <!-- ═══ TWO COL: Priority Breakdown + Due Analysis ═══ -->
+  <div class="two-col">
+    <div>
+      <h2 class="section-title">🎯 우선순위 분포</h2>
+      <div class="card"><div class="card-body" id="priority-breakdown"><div class="loading"><div class="spinner"></div></div></div></div>
+    </div>
+    <div>
+      <h2 class="section-title">📅 마감 분석</h2>
+      <div class="card"><div class="card-body" id="due-analysis"><div class="loading"><div class="spinner"></div></div></div></div>
+    </div>
+  </div>
+
+  <!-- ═══ WS FILTER + DETAIL ═══ -->
+  <h2 class="section-title">🔍 WS별 상세 드릴다운</h2>
+  <div class="filter-tabs" id="ws-filters"></div>
+  <div id="ws-detail-cards"></div>
+
+  <div class="footer" id="footer">Loading...</div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://ldqvreaivjrvrvpitcqx.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkcXZyZWFpdmpydnJ2cGl0Y3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyOTEzMDYsImV4cCI6MjA3Njg2NzMwNn0.GMpmq4tal4kvcW6_P_LOxCWc8XrVh6LX51sQ2L5WyEQ';
+
+const WS = {1:{name:'① 챌린지',icon:'🔥',color:'#e74c3c'},2:{name:'② 시딩',icon:'🌱',color:'#2ecc71'},3:{name:'③ 송선미',icon:'⭐',color:'#9065e0'},4:{name:'④ 메디샷',icon:'💉',color:'#e255a1'},5:{name:'⑤ 퍼포먼스',icon:'📈',color:'#2383e2'},6:{name:'⑥ AI',icon:'🤖',color:'#e07839'},7:{name:'⑦ 보고',icon:'📋',color:'#9b9a97'},8:{name:'⑧ 에이징유',icon:'📺',color:'#f5c518'}};
+const PNAMES = {1:'🔴 Urgent',2:'🟠 High',3:'🔵 Medium',4:'⚪ Low'};
+const PCOLORS = {1:'var(--error)',2:'var(--warning)',3:'var(--primary)',4:'var(--stone)'};
+
+async function supaFetch(t,q=''){const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}${q}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});return r.json();}
+function esc(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):'';}
+function daysUntil(d){if(!d)return Infinity;const a=new Date(d),b=new Date();a.setHours(0,0,0,0);b.setHours(0,0,0,0);return Math.ceil((a-b)/864e5);}
+
+let ALL_ACTIONS = [];
+let activeWsFilter = 'all';
+
+// ═══ Heatmap ═══
+function renderHeatmap(actions, wsStatus) {
+  const el = document.getElementById('heatmap');
+  const wsMap = {};
+  wsStatus.forEach(w => { wsMap[w.id] = w; });
+
+  const html = [1,2,3,4,5,6,7,8].map(id => {
+    const items = actions.filter(a => a.ws_id === id);
+    const total = items.length;
+    const overdue = items.filter(a => a.due_date && daysUntil(a.due_date) < 0 && a.status !== 'done').length;
+    const done = items.filter(a => a.status === 'done').length;
+    const ip = items.filter(a => a.status === 'in_progress').length;
+    const blocked = items.filter(a => a.status === 'blocked').length;
+
+    // Health score: higher is better
+    let score = 100;
+    if (total > 0) {
+      score -= (overdue / total) * 60;  // overdue penalty
+      score -= (blocked / total) * 30;  // blocked penalty
+      score += (done / total) * 20;     // done bonus
+    }
+    score = Math.max(0, Math.min(100, Math.round(score)));
+
+    let bg, fg;
+    if (score >= 80) { bg = '#e6f9ee'; fg = '#1a7a3a'; }
+    else if (score >= 60) { bg = '#fef9e7'; fg = '#8a6d00'; }
+    else if (score >= 40) { bg = '#fef3e2'; fg = '#9a5b13'; }
+    else { bg = '#fce4e4'; fg = '#a0232a'; }
+
+    const w = WS[id];
+    return `<div class="heatmap-cell" style="background:${bg};color:${fg}">
+      <div style="font-size:16px">${w.icon}</div>
+      <div class="h-val">${score}</div>
+      <div class="h-label">${w.name}</div>
+      <div class="h-sub">${total}건 · ${overdue > 0 ? overdue+'지연' : '정상'}</div>
+    </div>`;
+  }).join('');
+  el.innerHTML = html;
+}
+
+// ═══ Priority Breakdown ═══
+function renderPriority(actions) {
+  const el = document.getElementById('priority-breakdown');
+  const counts = {1:0,2:0,3:0,4:0};
+  actions.forEach(a => { counts[a.priority] = (counts[a.priority]||0) + 1; });
+  const max = Math.max(...Object.values(counts), 1);
+
+  el.innerHTML = [1,2,3,4].map(p => {
+    const c = counts[p] || 0;
+    const pct = (c / max * 100).toFixed(0);
+    return `<div class="priority-row">
+      <span class="priority-label"><span class="priority-dot p${p}" style="width:8px;height:8px;border-radius:var(--r-full);display:inline-block;"></span>${PNAMES[p]}</span>
+      <div class="priority-bar-wrap">
+        <div class="priority-bar" style="width:${pct}%;background:${PCOLORS[p]};height:8px;border-radius:var(--r-full)"></div>
+      </div>
+      <span class="priority-count">${c}</span>
+    </div>`;
+  }).join('');
+}
+
+// ═══ Due Analysis Ring ═══
+function renderDueAnalysis(actions) {
+  const el = document.getElementById('due-analysis');
+  const active = actions.filter(a => a.status !== 'done');
+  const overdue = active.filter(a => a.due_date && daysUntil(a.due_date) < 0).length;
+  const soon = active.filter(a => a.due_date && daysUntil(a.due_date) >= 0 && daysUntil(a.due_date) <= 7).length;
+  const later = active.filter(a => a.due_date && daysUntil(a.due_date) > 7).length;
+  const noDue = active.filter(a => !a.due_date).length;
+  const total = active.length || 1;
+
+  const segments = [
+    { count: overdue, color: 'var(--error)', label: '마감 지남', pct: overdue/total },
+    { count: soon, color: 'var(--warning)', label: '7일 이내', pct: soon/total },
+    { count: later, color: 'var(--success)', label: '7일 이후', pct: later/total },
+    { count: noDue, color: 'var(--stone)', label: '마감 미정', pct: noDue/total },
+  ];
+
+  // SVG ring
+  const r = 48, cx = 60, cy = 60, c = 2 * Math.PI * r;
+  let offset = 0;
+  const arcs = segments.map(s => {
+    const len = s.pct * c;
+    const arc = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="12" stroke-dasharray="${len} ${c - len}" stroke-dashoffset="${-offset}" stroke-linecap="round"/>`;
+    offset += len;
+    return arc;
+  }).join('');
+
+  const onTrackPct = total > 0 ? Math.round(((soon + later) / total) * 100) : 0;
+
+  el.innerHTML = `<div class="due-ring">
+    <div class="ring-visual">
+      <svg viewBox="0 0 120 120">${arcs}</svg>
+      <div class="ring-center">
+        <div class="ring-center-val">${onTrackPct}%</div>
+        <div class="ring-center-label">정상</div>
+      </div>
+    </div>
+    <div class="due-legend">
+      ${segments.map(s => `<div class="due-legend-item">
+        <span class="due-legend-dot" style="background:${s.color}"></span>
+        <span style="flex:1">${s.label}</span>
+        <span style="font-weight:600;color:var(--ink)">${s.count}건</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ═══ WS Filter + Detail ═══
+function renderWSFilters() {
+  const el = document.getElementById('ws-filters');
+  let html = `<span class="filter-tab ${activeWsFilter==='all'?'active':''}" data-ws="all">전체</span>`;
+  [1,2,3,4,5,6,7,8].forEach(id => {
+    html += `<span class="filter-tab ${activeWsFilter==id?'active':''}" data-ws="${id}">${WS[id].icon} ${WS[id].name}</span>`;
+  });
+  el.innerHTML = html;
+  el.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      activeWsFilter = tab.dataset.ws === 'all' ? 'all' : parseInt(tab.dataset.ws);
+      renderWSFilters();
+      renderWSDetails(ALL_ACTIONS);
+    });
+  });
+}
+
+function renderWSDetails(actions) {
+  const el = document.getElementById('ws-detail-cards');
+  const wsIds = activeWsFilter === 'all' ? [1,2,3,4,5,6,7,8] : [activeWsFilter];
+
+  el.innerHTML = wsIds.map(id => {
+    const items = actions.filter(a => a.ws_id === id);
+    if (items.length === 0) return '';
+    const w = WS[id];
+    const done = items.filter(a => a.status === 'done').length;
+    const ip = items.filter(a => a.status === 'in_progress').length;
+    const overdue = items.filter(a => a.due_date && daysUntil(a.due_date) < 0 && a.status !== 'done').length;
+    const blocked = items.filter(a => a.status === 'blocked').length;
+
+    items.sort((a,b) => a.priority - b.priority || (daysUntil(a.due_date) - daysUntil(b.due_date)));
+
+    return `<div class="card">
+      <div class="ws-detail">
+        <div class="ws-detail-header">
+          <span class="ws-detail-name">${w.icon} ${w.name}</span>
+          <div class="ws-detail-stats">
+            <div class="ws-stat"><div class="ws-stat-val" style="color:var(--ink)">${items.length}</div><div class="ws-stat-label">전체</div></div>
+            <div class="ws-stat"><div class="ws-stat-val" style="color:var(--success)">${done}</div><div class="ws-stat-label">완료</div></div>
+            <div class="ws-stat"><div class="ws-stat-val" style="color:var(--primary)">${ip}</div><div class="ws-stat-label">진행</div></div>
+            <div class="ws-stat"><div class="ws-stat-val" style="color:${overdue>0?'var(--error)':'var(--steel)'}">${overdue}</div><div class="ws-stat-label">지연</div></div>
+          </div>
+        </div>
+        ${items.map(a => {
+          const days = daysUntil(a.due_date);
+          let dueClass = 'due', dueText = '—';
+          if (a.due_date) {
+            const d = new Date(a.due_date);
+            dueText = `${d.getMonth()+1}/${d.getDate()}`;
+            if (days < 0 && a.status !== 'done') { dueClass = 'due overdue'; dueText += ` (${Math.abs(days)}일↑)`; }
+            else if (days <= 3) { dueClass = 'due soon'; }
+          }
+          const statusMap = {todo:'Todo',in_progress:'진행',done:'완료',blocked:'블로킹'};
+          return `<div class="issue-mini">
+            <span class="priority-dot p${a.priority}"></span>
+            <span class="title">${a.linear_issue_id ? `<a href="${esc(a.linear_url)}" target="_blank" style="color:var(--steel);font-size:11px;margin-right:4px">${esc(a.linear_issue_id)}</a>` : ''}${esc(a.title)}</span>
+            <span class="status-sm status-sm-${a.status}">${statusMap[a.status]||a.status}</span>
+            <span class="${dueClass}">${dueText}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══ Init ═══
+async function init() {
+  try {
+    const [actions, wsStatus] = await Promise.all([
+      supaFetch('dashboard_actions', '?order=priority,due_date'),
+      supaFetch('dashboard_ws_status', '?order=id'),
+    ]);
+    ALL_ACTIONS = actions;
+
+    renderHeatmap(actions, wsStatus);
+    renderPriority(actions);
+    renderDueAnalysis(actions);
+    renderWSFilters();
+    renderWSDetails(actions);
+
+    const now = new Date();
+    const days = ['일','월','화','수','목','금','토'];
+    document.getElementById('hero-date').textContent = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]}) · PM 유언우`;
+    document.getElementById('footer').textContent = `BIOFOX Deep Dive · Last updated: ${now.toISOString().slice(0,16).replace('T',' ')}`;
+  } catch (err) {
+    console.error(err);
+    document.getElementById('heatmap').innerHTML = `<div style="color:var(--error);padding:20px;">❌ ${esc(err.message)}</div>`;
+  }
+}
+init();
+</script>
+</body>
+</html>
