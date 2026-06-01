@@ -1,0 +1,39 @@
+name: BIOFOX Dashboard Daily
+
+on:
+  schedule:
+    # 매일 아침 9시 KST (= 0시 UTC)
+    - cron: '0 0 * * *'
+    # 매일 저녁 10시 KST (= 13시 UTC)
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync-and-briefing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine action
+        id: action
+        run: |
+          HOUR=$(date -u +%H)
+          if [ "$HOUR" = "00" ]; then
+            echo "type=morning" >> $GITHUB_OUTPUT
+          else
+            echo "type=evening" >> $GITHUB_OUTPUT
+          fi
+
+      # Always sync Linear → Supabase
+      - name: Sync Linear to Supabase
+        run: |
+          RESULT=$(curl -s -X POST ${{ secrets.SUPABASE_URL }}/functions/v1/dashboard-sync \
+            -H "Content-Type: application/json")
+          echo "Sync result: $RESULT"
+
+      # Morning only: send Discord briefing
+      - name: Morning Briefing
+        if: steps.action.outputs.type == 'morning' || github.event_name == 'workflow_dispatch'
+        run: |
+          RESULT=$(curl -s -X POST ${{ secrets.SUPABASE_URL }}/functions/v1/daily-briefing \
+            -H "Content-Type: application/json" \
+            -d '{"webhook_url":"${{ secrets.DISCORD_WEBHOOK_URL }}"}')
+          echo "Briefing result: $RESULT"
