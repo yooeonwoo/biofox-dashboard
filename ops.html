@@ -386,7 +386,12 @@ async function syncLinear(){
   icon.textContent='⏳';
 
   try{
-    // Re-fetch all data from Supabase
+    // 1. Call Edge Function to sync Linear → Supabase
+    const syncRes=await fetch(`${SB_URL}/functions/v1/dashboard-sync`,{method:'POST',headers:{'Content-Type':'application/json'}});
+    const syncData=await syncRes.json();
+    if(!syncData.ok)throw new Error(syncData.error||'Sync failed');
+
+    // 2. Re-fetch updated data from Supabase
     const[actions,completions]=await Promise.all([
       sf('dashboard_actions','?order=priority,due_date'),
       sf('dashboard_recent_completions','?order=completed_at.desc&limit=10'),
@@ -402,16 +407,16 @@ async function syncLinear(){
     // Update timestamp
     const now=new Date();
     const ts=`${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-    document.getElementById('footer').textContent=`BIOFOX PM Ops · Synced: ${ts} · Linear 데이터 변경은 PM에게 요청`;
+    document.getElementById('footer').textContent=`BIOFOX PM Ops · Linear 동기화 완료: ${ts} · ${syncData.synced}건 반영`;
 
     icon.textContent='✅';
     icon.style.animation='none';
-    setTimeout(()=>{icon.textContent='🔄';btn.disabled=false;btn.style.opacity='1';},2000);
+    setTimeout(()=>{icon.textContent='🔄';btn.disabled=false;btn.style.opacity='1';},3000);
   }catch(err){
     icon.textContent='❌';
     icon.style.animation='none';
     alert('동기화 실패: '+err.message);
-    setTimeout(()=>{icon.textContent='🔄';btn.disabled=false;btn.style.opacity='1';},2000);
+    setTimeout(()=>{icon.textContent='🔄';btn.disabled=false;btn.style.opacity='1';},3000);
   }
 }
 </script>
