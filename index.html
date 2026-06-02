@@ -148,6 +148,35 @@ body {
 }
 .ws-table tbody tr:last-child td { border-bottom: none; }
 .ws-table tbody tr:hover { background: var(--surface-soft); }
+.ws-table tbody tr.ws-row { cursor: pointer; }
+.ws-table tbody tr.ws-row td:first-child .ws-name::before { content: '▶ '; font-size: 10px; color: var(--stone); transition: transform .2s; display: inline-block; }
+.ws-table tbody tr.ws-row.open td:first-child .ws-name::before { content: '▼ '; color: var(--primary); }
+.ws-detail-row td { padding: 0 !important; border-bottom: 1px solid var(--hairline-soft) !important; }
+.ws-detail { background: var(--surface-soft); padding: 12px 20px 16px 48px; }
+.ws-detail-empty { color: var(--steel); font-size: 13px; padding: 8px 0; }
+.parent-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; cursor: pointer; border-bottom: 1px solid var(--hairline-soft); }
+.parent-row:last-child { border-bottom: none; }
+.parent-arrow { font-size: 10px; color: var(--stone); width: 14px; flex-shrink: 0; transition: transform .15s; }
+.parent-row.open .parent-arrow { color: var(--primary); }
+.parent-title { font-size: 13px; font-weight: 500; color: var(--ink); flex: 1; }
+.parent-id { font-size: 11px; color: var(--stone); font-family: monospace; }
+.parent-status { font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: var(--r-full); }
+.parent-status-todo { background: var(--tint-gray); color: var(--slate); }
+.parent-status-in_progress { background: #e0edff; color: #1a5fa0; }
+.parent-status-done { background: #e6f9ee; color: #1a7a3a; }
+.parent-dots { display: flex; gap: 3px; align-items: center; }
+.parent-dots .dot-mini { width: 8px; height: 8px; border-radius: var(--r-full); }
+.dot-done { background: var(--success); }
+.dot-in_progress { background: var(--primary); }
+.dot-todo { background: var(--hairline-strong); }
+.sub-list { padding: 4px 0 4px 22px; display: none; }
+.parent-row.open + .sub-list { display: block; }
+.sub-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 12px; color: var(--slate); }
+.sub-item .sub-dot { width: 6px; height: 6px; border-radius: var(--r-full); flex-shrink: 0; }
+.sub-item .sub-title { flex: 1; }
+.sub-item .sub-id { font-size: 10px; color: var(--stone); font-family: monospace; }
+.sub-item .sub-status { font-size: 10px; font-weight: 600; }
+.sub-item .sub-due { font-size: 10px; color: var(--stone); }
 
 .ws-name { font-weight: 500; color: var(--ink); display: flex; align-items: center; gap: 8px; }
 
@@ -407,7 +436,7 @@ function renderWS(rows) {
     }).join('');
 
     return `
-      <tr>
+      <tr class="ws-row" onclick="toggleWsDetail(this, ${ws.id})">
         <td><span class="ws-name"><span class="ws-icon">${ws.icon}</span> ${esc(ws.name)}</span></td>
         <td><span class="status-badge status-${ws.status}"><span class="dot"></span>${esc(ws.status_label)}</span></td>
         <td>
@@ -419,6 +448,95 @@ function renderWS(rows) {
         <td>${drivers}</td>
         <td><span class="issue-text">${esc(ws.issue_text)}</span></td>
       </tr>
+      <tr class="ws-detail-row" id="ws-detail-${ws.id}" style="display:none">
+        <td colspan="5">
+          <div class="ws-detail" id="ws-detail-content-${ws.id}">
+            <div class="ws-detail-empty">로딩중...</div>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// WS detail cache
+const wsDetailCache = {};
+
+async function toggleWsDetail(row, wsId) {
+  const detailRow = document.getElementById('ws-detail-' + wsId);
+  const isOpen = row.classList.contains('open');
+
+  // Close all other open details
+  document.querySelectorAll('.ws-row.open').forEach(r => {
+    if (r !== row) {
+      r.classList.remove('open');
+      const otherId = r.getAttribute('onclick').match(/(\d+)/)?.[1];
+      if (otherId) document.getElementById('ws-detail-' + otherId).style.display = 'none';
+    }
+  });
+
+  if (isOpen) {
+    row.classList.remove('open');
+    detailRow.style.display = 'none';
+    return;
+  }
+
+  row.classList.add('open');
+  detailRow.style.display = '';
+
+  // Fetch if not cached
+  if (!wsDetailCache[wsId]) {
+    const actions = await supaFetch('dashboard_actions', `?ws_id=eq.${wsId}&order=is_sub,parent_issue_id,id`);
+    wsDetailCache[wsId] = actions;
+  }
+  renderWsDetail(wsId, wsDetailCache[wsId]);
+}
+
+function renderWsDetail(wsId, actions) {
+  const container = document.getElementById('ws-detail-content-' + wsId);
+  const parents = actions.filter(a => !a.is_sub);
+  const subs = actions.filter(a => a.is_sub);
+
+  if (parents.length === 0) {
+    container.innerHTML = '<div class="ws-detail-empty">이슈 없음</div>';
+    return;
+  }
+
+  container.innerHTML = parents.map(p => {
+    const children = subs.filter(s => s.parent_issue_id === p.linear_issue_id);
+    const doneCount = children.filter(c => c.status === 'done').length;
+    const dots = children.map(c =>
+      `<span class="dot-mini dot-${c.status}"></span>`
+    ).join('');
+
+    const subHtml = children.length > 0
+      ? children.map(s => {
+          const statusColor = s.status === 'done' ? 'var(--success)' : s.status === 'in_progress' ? 'var(--primary)' : 'var(--hairline-strong)';
+          const statusLabel = s.status === 'done' ? '완료' : s.status === 'in_progress' ? '진행중' : 'Todo';
+          const due = s.due_date ? s.due_date.slice(5) : '';
+          return `<div class="sub-item">
+            <span class="sub-dot" style="background:${statusColor}"></span>
+            <span class="sub-title">${esc(s.title)}</span>
+            <span class="sub-status" style="color:${statusColor}">${statusLabel}</span>
+            <span class="sub-due">${due}</span>
+            <span class="sub-id">${esc(s.linear_issue_id)}</span>
+          </div>`;
+        }).join('')
+      : '<div class="sub-item" style="color:var(--stone)">sub-issue 없음</div>';
+
+    const statusCls = p.status === 'done' ? 'done' : p.status === 'in_progress' ? 'in_progress' : 'todo';
+    const statusLabel = p.status === 'done' ? '완료' : p.status === 'in_progress' ? '진행중' : 'Todo';
+
+    return `
+      <div class="parent-row" onclick="this.classList.toggle('open')">
+        <span class="parent-arrow">▶</span>
+        <span class="parent-title">${esc(p.title)}</span>
+        <span class="parent-dots">${dots}</span>
+        <span class="parent-status parent-status-${statusCls}">${statusLabel}</span>
+        <span class="parent-id">${esc(p.linear_issue_id)}</span>
+        <span style="font-size:11px;color:var(--stone)">${doneCount}/${children.length}</span>
+      </div>
+      <div class="sub-list">${subHtml}</div>
     `;
   }).join('');
 }
