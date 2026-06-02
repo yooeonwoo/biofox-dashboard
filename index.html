@@ -338,7 +338,7 @@ body {
 
   <!-- WS Table -->
   <!-- Shared Items -->
-  <h2 class="section-title" style="margin-top:0"><span class="icon">📨</span> 공유 드릴 사항</h2>
+  <h2 class="section-title" style="margin-top:0"><span class="icon">📨</span> 공유 드릴 사항 <button onclick="openHistory()" style="margin-left:auto;padding:4px 12px;border-radius:var(--r-md);font-size:12px;font-weight:500;border:1px solid var(--hairline-strong);background:var(--surface);color:var(--slate);cursor:pointer;transition:all .15s" onmouseover="this.style.background='var(--hairline)'" onmouseout="this.style.background='var(--surface)'">🕘 히스토리</button></h2>
   <div id="shared-items" style="margin-bottom:40px">
     <div class="loading"><div class="spinner"></div>로딩중...</div>
   </div>
@@ -388,6 +388,19 @@ body {
 
   <!-- Footer -->
   <div class="footer" id="footer">BIOFOX Marketing · Loading...</div>
+</div>
+
+<!-- History Modal -->
+<div id="history-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center" onclick="if(event.target===this)closeHistory()">
+  <div style="background:var(--canvas);border-radius:var(--r-lg);width:90%;max-width:640px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--hairline)">
+      <h3 style="font-size:16px;font-weight:600;color:var(--ink)">🕘 공유 히스토리</h3>
+      <button onclick="closeHistory()" style="border:none;background:none;cursor:pointer;font-size:18px;color:var(--slate);padding:4px">✕</button>
+    </div>
+    <div id="history-content" style="padding:16px 20px;overflow-y:auto;flex:1">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -630,14 +643,14 @@ init();
 // ═══ Shared Items ═══
 function renderShared(items) {
   const el = document.getElementById('shared-items');
-  if (!items || items.length === 0) {
-    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--steel);font-size:14px">공유 사항 없음</div>';
+  // L1에선 미확인 항목만 표시 (확인된 건 히스토리에서)
+  const active = items ? items.filter(i => !i.acknowledged) : [];
+  if (active.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--steel);font-size:14px">새 공유 사항 없음</div>';
     return;
   }
-  // Unacknowledged first
-  items.sort((a,b) => (a.acknowledged?1:0) - (b.acknowledged?1:0));
 
-  el.innerHTML = items.map(item => {
+  el.innerHTML = active.map(item => {
     const tag = item.is_decision
       ? '<span class="shared-tag shared-tag-decision">의사결정 요청</span>'
       : '<span class="shared-tag shared-tag-info">공유</span>';
@@ -732,6 +745,63 @@ async function deleteItem(id, btn) {
     card.style.transform = 'translateX(20px)';
     setTimeout(() => card.remove(), 300);
   }
+}
+
+// ═══ History Modal ═══
+async function openHistory() {
+  const overlay = document.getElementById('history-overlay');
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  const el = document.getElementById('history-content');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>로딩중...</div>';
+
+  const items = await supaFetch('dashboard_shared_items', '?order=created_at.desc&limit=50');
+  const acknowledged = items.filter(i => i.acknowledged);
+  const pending = items.filter(i => !i.acknowledged);
+
+  if (items.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--steel)">히스토리 없음</div>';
+    return;
+  }
+
+  const renderItem = (item) => {
+    const tag = item.is_decision
+      ? '<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px;background:#fce4e4;color:#a0232a">의사결정</span>'
+      : '<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px;background:#dbeafe;color:#1a5fa0">공유</span>';
+    const time = new Date(item.created_at).toLocaleString('ko-KR', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    const ackTime = item.acknowledged_at
+      ? `<div style="font-size:11px;color:var(--success);margin-top:4px">✓ 확인: ${new Date(item.acknowledged_at).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>`
+      : '';
+    const resp = item.response
+      ? `<div style="margin-top:6px;padding:6px 10px;background:var(--surface);border-radius:var(--r-md);font-size:12px;color:var(--slate);border-left:3px solid var(--primary)">💬 ${esc(item.response)}</div>`
+      : '';
+    return `<div style="padding:10px 0;border-bottom:1px solid var(--hairline-soft)">
+      <div style="display:flex;align-items:center;gap:8px">
+        ${tag}
+        <span style="flex:1;font-size:13px;color:var(--charcoal)">${esc(item.content)}</span>
+        <span style="font-size:11px;color:var(--stone);flex-shrink:0">${time}</span>
+      </div>
+      ${ackTime}${resp}
+    </div>`;
+  };
+
+  let html = '';
+  if (pending.length > 0) {
+    html += `<div style="font-size:12px;font-weight:600;color:var(--warning);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">⏳ 대기중 (${pending.length})</div>`;
+    html += pending.map(renderItem).join('');
+  }
+  if (acknowledged.length > 0) {
+    html += `<div style="font-size:12px;font-weight:600;color:var(--success);margin:16px 0 8px;text-transform:uppercase;letter-spacing:0.5px">✅ 확인 완료 (${acknowledged.length})</div>`;
+    html += acknowledged.map(renderItem).join('');
+  }
+
+  el.innerHTML = html;
+}
+
+function closeHistory() {
+  document.getElementById('history-overlay').style.display = 'none';
+  document.body.style.overflow = '';
 }
 </script>
 </body>
