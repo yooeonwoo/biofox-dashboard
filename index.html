@@ -3,806 +3,556 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BIOFOX Marketing Dashboard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>BIOFOX 콘텐츠 전략 대시보드</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════
-   Notion-style Design Tokens
-   ═══════════════════════════════════════════ */
-:root {
-  --primary: #2383e2;
-  --brand-navy: #191919;
-  --brand-navy-mid: #2b2b2b;
-  --brand-pink: #e255a1;
-  --brand-orange: #e07839;
-  --brand-purple: #9065e0;
-  --brand-teal: #2eaadc;
-  --brand-green: #4dab5c;
-  --tint-yellow-bold: #f5c518;
-  --tint-mint: #e0f5ed;
-  --tint-lavender: #ede4f7;
-  --tint-peach: #fdeae1;
-  --tint-gray: #f1f1ef;
-  --canvas: #ffffff;
-  --surface: #f7f6f3;
-  --surface-soft: #fafaf8;
-  --hairline: #e9e9e7;
-  --hairline-soft: #f0f0ee;
-  --hairline-strong: #d3d3d0;
-  --ink-deep: #0f0f0f;
-  --ink: #1a1a1a;
-  --charcoal: #37352f;
-  --slate: #6b6b6b;
-  --steel: #9b9a97;
-  --stone: #afafad;
-  --on-dark: #ffffff;
-  --on-dark-muted: rgba(255,255,255,0.65);
-  --success: #2ecc71;
-  --warning: #e67e22;
-  --error: #e74c3c;
-  --r-xs: 4px; --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-full: 9999px;
-  --shadow-card: rgba(15,15,15,0.08) 0px 4px 12px 0px;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --canvas:#f6f5f4;--surface:#ffffff;--border:#e6e6e6;
+  --ink:#000000;--secondary:#31302e;--muted:#615d59;--faint:#a39e98;
+  --accent:#0075de;--indigo:#213183;
+  --purple:#d6b6f6;--pink:#ff64c8;--orange:#dd5b00;--teal:#2a9d99;--green:#1aae39;--sky:#62aef0;
+  --shadow:0 0.175px 1.041px rgba(0,0,0,.01),0 .8px 2.925px rgba(0,0,0,.02),0 2.025px 7.847px rgba(0,0,0,.027),0 4px 18px rgba(0,0,0,.04);
+  --radius:12px;
 }
+html{font-size:15px;-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--canvas);color:var(--ink);line-height:1.6;padding:0}
+.wrap{max-width:1260px;margin:0 auto;padding:0 24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+.pill{display:inline-block;font-size:.75rem;font-weight:600;padding:3px 12px;border-radius:999px;letter-spacing:.02em}
+h2{font-size:1.35rem;font-weight:700;letter-spacing:-.02em;margin-bottom:16px;color:var(--ink)}
+h3{font-size:1.1rem;font-weight:700;letter-spacing:-.01em;margin-bottom:10px}
+.section{margin-bottom:40px}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ─── 1. HERO ─── */
+.hero{background:var(--indigo);color:#fff;padding:56px 0 48px;position:relative;overflow:hidden}
+.hero .sticker{position:absolute;border-radius:4px;opacity:.35}
+.hero .s1{width:18px;height:18px;background:var(--purple);top:20%;left:8%;transform:rotate(12deg)}
+.hero .s2{width:12px;height:12px;background:var(--pink);border-radius:50%;top:30%;right:12%}
+.hero .s3{width:14px;height:14px;background:var(--teal);bottom:18%;left:15%;transform:rotate(-8deg)}
+.hero .s4{width:10px;height:10px;background:var(--orange);border-radius:50%;bottom:25%;right:20%}
+.hero .s5{width:16px;height:16px;background:var(--green);top:60%;left:5%;border-radius:50%}
+.hero .s6{width:20px;height:20px;background:var(--sky);top:15%;right:6%;transform:rotate(20deg)}
+.hero-eyebrow{display:inline-block;font-size:.7rem;font-weight:600;padding:4px 14px;border-radius:999px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.85);margin-bottom:16px;letter-spacing:.03em}
+.hero h1{font-size:2.2rem;font-weight:800;letter-spacing:-.04em;margin-bottom:8px}
+.hero .sub{font-size:1.1rem;color:rgba(255,255,255,.7);font-weight:400}
+.hero .sub em{font-style:normal;color:#fff;font-weight:700}
 
-body {
-  font-family: 'Inter', -apple-system, system-ui, 'Segoe UI', Helvetica, sans-serif;
-  background: var(--surface);
-  color: var(--charcoal);
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-}
+/* ─── 2. KPI ─── */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.kpi{border-top:3px solid var(--accent);text-align:center}
+.kpi:nth-child(1){border-color:var(--purple)}
+.kpi:nth-child(2){border-color:var(--teal)}
+.kpi:nth-child(3){border-color:var(--green)}
+.kpi:nth-child(4){border-color:var(--pink)}
+.kpi:nth-child(5){border-color:var(--orange)}
+.kpi .num{font-size:1.8rem;font-weight:800;letter-spacing:-.03em;color:var(--ink);margin:12px 0 2px}
+.kpi .label{font-size:.78rem;color:var(--muted);font-weight:500}
+.kpi .sub-label{font-size:.68rem;color:var(--faint);margin-top:2px}
 
-.page { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+/* ─── 3. TABLE ─── */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.ch{width:100%;border-collapse:collapse;font-size:.82rem}
+table.ch th{text-align:left;font-weight:600;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;padding:10px 12px;border-bottom:2px solid var(--border);white-space:nowrap}
+table.ch td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+table.ch tr:last-child td{border-bottom:none}
+table.ch .indent{padding-left:32px;color:var(--secondary);font-size:.78rem}
+.badge{display:inline-block;font-size:.65rem;font-weight:600;padding:2px 8px;border-radius:999px}
+.badge-self{background:#e8f5e9;color:#2e7d32}
+.badge-out{background:#fff3e0;color:#e65100}
+.badge-agency{background:#e3f2fd;color:#1565c0}
+.bar-cell{min-width:100px}
+.bar-bg{height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+table.ch .total-row td{font-weight:700;border-top:2px solid var(--ink);border-bottom:none}
 
-/* ═══ Hero ═══ */
-.hero {
-  background: var(--brand-navy);
-  color: var(--on-dark);
-  padding: 64px 0 48px;
-  position: relative;
-  overflow: hidden;
-}
-.hero::before {
-  content: '';
-  position: absolute;
-  top: 24px; right: 80px;
-  width: 12px; height: 12px;
-  background: var(--brand-pink);
-  border-radius: var(--r-full);
-  box-shadow:
-    -40px 30px 0 var(--brand-teal),
-    -120px -10px 0 var(--tint-yellow-bold),
-    60px 60px 0 var(--brand-purple),
-    -200px 50px 0 var(--brand-green),
-    120px -20px 0 var(--brand-orange);
-}
-.hero-inner {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 32px;
-  text-align: center;
-}
-.hero h1 { font-size: 56px; font-weight: 600; line-height: 1.10; letter-spacing: -1px; margin-bottom: 12px; }
-.hero .subtitle { font-size: 18px; font-weight: 400; line-height: 1.50; color: var(--on-dark-muted); margin-bottom: 8px; }
-.hero .date-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: var(--r-full);
-  padding: 6px 16px;
-  font-size: 13px; font-weight: 600; color: var(--on-dark-muted);
-  margin-bottom: 24px;
-}
-.hero .date-badge .dot {
-  width: 8px; height: 8px; border-radius: var(--r-full);
-  background: var(--success); animation: pulse 2s infinite;
-}
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+/* ─── 4. COST ─── */
+.cost-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.cost-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:.85rem}
+.cost-item:last-child{border-bottom:none}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cost-item .amt{margin-left:auto;font-weight:700;white-space:nowrap}
+.cost-total{margin-top:12px;padding-top:12px;border-top:2px solid var(--ink);font-weight:700;font-size:1rem;display:flex;justify-content:space-between}
+.compare-card{border-left:3px solid var(--accent);padding:16px;margin-bottom:12px}
+.compare-card .big{font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+.savings-pill{display:inline-block;background:#e8f5e9;color:#2e7d32;font-weight:700;padding:6px 16px;border-radius:999px;font-size:.85rem;margin:8px 0}
 
-/* ═══ Summary KPI ═══ */
-.summary-strip {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
-  margin-top: -40px; position: relative; z-index: 2; margin-bottom: 40px;
-}
-.summary-card {
-  background: var(--canvas); border: 1px solid var(--hairline);
-  border-radius: var(--r-lg); padding: 24px;
-  box-shadow: var(--shadow-card); text-align: center;
-}
-.summary-card .label {
-  font-size: 13px; font-weight: 600; color: var(--steel);
-  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
-}
-.summary-card .value { font-size: 36px; font-weight: 700; color: var(--ink); line-height: 1.1; }
-.summary-card .sub { font-size: 13px; color: var(--slate); margin-top: 4px; }
-.summary-card .value.green { color: var(--success); }
-.summary-card .value.orange { color: var(--warning); }
-.summary-card .value.red { color: var(--error); }
+/* ─── 5. MULTIPLIER ─── */
+.flow{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;padding:32px 16px}
+.flow-step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;text-align:center;box-shadow:var(--shadow)}
+.flow-step .num{font-size:1.4rem;font-weight:800;color:var(--accent)}
+.flow-step .txt{font-size:.75rem;color:var(--muted);margin-top:2px}
+.flow-arrow{font-size:1.2rem;color:var(--faint)}
+.flow-result{background:var(--indigo);color:#fff;border-radius:var(--radius);padding:14px 24px;text-align:center}
+.flow-result .num{font-size:1.6rem;font-weight:800}
+.flow-result .txt{font-size:.75rem;opacity:.7;margin-top:2px}
+.flow-note{text-align:center;color:var(--muted);font-size:.82rem;margin-top:12px}
 
-/* ═══ Section ═══ */
-.section-title {
-  font-size: 22px; font-weight: 600; color: var(--ink);
-  margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
-}
+/* ─── 6. GANTT ─── */
+.gantt-wrap{overflow-x:auto}
+.gantt{width:100%;border-collapse:collapse;font-size:.72rem;min-width:900px}
+.gantt th,.gantt td{padding:6px 4px;text-align:center;border:1px solid var(--border)}
+.gantt th{background:#fafafa;font-weight:600;color:var(--muted);position:sticky;top:0}
+.gantt th.now{background:#fff3cd;color:var(--orange)}
+.gantt .row-label{text-align:left;font-weight:600;white-space:nowrap;padding-left:10px;min-width:100px;position:sticky;left:0;background:var(--surface);z-index:1}
+.gantt .bar{border-radius:4px;height:18px;display:inline-block;width:90%;font-size:.6rem;line-height:18px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.gantt .now-col{background:rgba(221,91,0,.06)}
 
-/* ═══ WS Table ═══ */
-.ws-table-wrap {
-  background: var(--canvas); border: 1px solid var(--hairline);
-  border-radius: var(--r-lg); overflow: hidden;
-  box-shadow: var(--shadow-card); margin-bottom: 40px;
-}
-.ws-table { width: 100%; border-collapse: collapse; }
-.ws-table thead th {
-  background: var(--surface); padding: 12px 16px;
-  font-size: 12px; font-weight: 600; color: var(--steel);
-  text-transform: uppercase; letter-spacing: 0.5px;
-  text-align: left; border-bottom: 1px solid var(--hairline);
-}
-.ws-table tbody td {
-  padding: 14px 16px; font-size: 14px;
-  border-bottom: 1px solid var(--hairline-soft); vertical-align: middle;
-}
-.ws-table tbody tr:last-child td { border-bottom: none; }
-.ws-table tbody tr:hover { background: var(--surface-soft); }
-.ws-table tbody tr.ws-row { cursor: pointer; }
-.ws-table tbody tr.ws-row td:first-child .ws-name::before { content: '▶ '; font-size: 10px; color: var(--stone); transition: transform .2s; display: inline-block; }
-.ws-table tbody tr.ws-row.open td:first-child .ws-name::before { content: '▼ '; color: var(--primary); }
-.ws-detail-row td { padding: 0 !important; border-bottom: 1px solid var(--hairline-soft) !important; }
-.ws-detail { background: var(--surface-soft); padding: 12px 20px 16px 48px; }
-.ws-detail-empty { color: var(--steel); font-size: 13px; padding: 8px 0; }
-.parent-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; cursor: pointer; border-bottom: 1px solid var(--hairline-soft); }
-.parent-row:last-child { border-bottom: none; }
-.parent-arrow { font-size: 10px; color: var(--stone); width: 14px; flex-shrink: 0; transition: transform .15s; }
-.parent-row.open .parent-arrow { color: var(--primary); }
-.parent-title { font-size: 13px; font-weight: 500; color: var(--ink); flex: 1; }
-.parent-id { font-size: 11px; color: var(--stone); font-family: monospace; }
-.parent-status { font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: var(--r-full); }
-.parent-status-todo { background: var(--tint-gray); color: var(--slate); }
-.parent-status-in_progress { background: #e0edff; color: #1a5fa0; }
-.parent-status-done { background: #e6f9ee; color: #1a7a3a; }
-.parent-dots { display: flex; gap: 3px; align-items: center; }
-.parent-dots .dot-mini { width: 8px; height: 8px; border-radius: var(--r-full); }
-.dot-done { background: var(--success); }
-.dot-in_progress { background: var(--primary); }
-.dot-todo { background: var(--hairline-strong); }
-.sub-list { padding: 4px 0 4px 22px; display: none; }
-.parent-row.open + .sub-list { display: block; }
-.sub-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 12px; color: var(--slate); }
-.sub-item .sub-dot { width: 6px; height: 6px; border-radius: var(--r-full); flex-shrink: 0; }
-.sub-item .sub-title { flex: 1; }
-.sub-item .sub-id { font-size: 10px; color: var(--stone); font-family: monospace; }
-.sub-item .sub-status { font-size: 10px; font-weight: 600; }
-.sub-item .sub-due { font-size: 10px; color: var(--stone); }
+/* ─── 7. ROLES ─── */
+.role-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.role-card{border-left:4px solid var(--accent);padding:16px 20px}
+.role-card h4{font-size:.95rem;font-weight:700;margin-bottom:2px}
+.role-card .title{font-size:.78rem;color:var(--accent);font-weight:600;margin-bottom:8px}
+.role-card ul{list-style:none;padding:0}
+.role-card li{font-size:.8rem;color:var(--secondary);padding:3px 0;padding-left:14px;position:relative}
+.role-card li::before{content:'·';position:absolute;left:0;font-weight:700;color:var(--faint)}
 
-.ws-name { font-weight: 500; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+/* ─── 8. AD ─── */
+.ad-bars{display:flex;align-items:flex-end;gap:16px;justify-content:center;padding:24px 0;height:220px}
+.ad-col{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ad-bar{width:64px;border-radius:8px 8px 0 0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;color:#fff;font-weight:700;font-size:.75rem;min-height:20px}
+.ad-label{font-size:.72rem;color:var(--muted);font-weight:500}
+.ad-target{margin-top:16px;text-align:center;padding:14px;border-radius:var(--radius);background:linear-gradient(135deg,var(--indigo),#3949ab);color:#fff}
+.ad-target .big{font-size:1.1rem;font-weight:700}
+.ad-target .sm{font-size:.78rem;opacity:.7;margin-top:4px}
 
-.status-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 3px 10px; border-radius: var(--r-full); font-size: 12px; font-weight: 600;
-}
-.status-badge .dot { width: 8px; height: 8px; border-radius: var(--r-full); }
-.status-on_track { background: #e6f9ee; color: #1a7a3a; }
-.status-on_track .dot { background: var(--success); }
-.status-at_risk { background: #fef3e2; color: #9a5b13; }
-.status-at_risk .dot { background: var(--warning); }
-.status-blocked { background: #fce4e4; color: #a0232a; }
-.status-blocked .dot { background: var(--error); }
-.status-not_started { background: var(--tint-gray); color: var(--slate); }
-.status-not_started .dot { background: var(--stone); }
+/* ─── 9. PERSUASION ─── */
+.pers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.pers-card{text-align:center;padding:28px 20px}
+.pers-card .emoji{font-size:2rem;margin-bottom:8px}
+.pers-card .big{font-size:1.8rem;font-weight:800;letter-spacing:-.03em}
+.pers-card .label{font-size:.82rem;color:var(--muted);margin-top:4px}
+.pers-card .desc{font-size:.78rem;color:var(--secondary);margin-top:8px}
 
-.progress-bar-wrap { display: flex; align-items: center; gap: 10px; }
-.progress-bar { flex: 1; height: 6px; background: var(--hairline); border-radius: var(--r-full); overflow: hidden; }
-.progress-bar .fill { height: 100%; border-radius: var(--r-full); transition: width 0.3s ease; }
-.fill-on_track { background: var(--success); }
-.fill-at_risk { background: var(--warning); }
-.fill-blocked { background: var(--error); }
-.fill-not_started { background: var(--stone); }
-.progress-pct { font-size: 13px; font-weight: 600; color: var(--slate); min-width: 36px; text-align: right; }
+/* ─── 10. TODO ─── */
+table.todo{width:100%;border-collapse:collapse;font-size:.82rem}
+table.todo th{text-align:left;font-weight:600;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px;border-bottom:2px solid var(--border)}
+table.todo td{padding:8px 12px;border-bottom:1px solid var(--border)}
+table.todo tr:last-child td{border-bottom:none}
+.chk{width:16px;height:16px;border:2px solid var(--border);border-radius:4px;display:inline-block;vertical-align:middle;margin-right:6px}
 
-.driver-tag {
-  font-size: 12px; font-weight: 500; padding: 2px 8px;
-  border-radius: var(--r-sm); background: var(--tint-lavender); color: #6b4fa0;
-  display: inline-block; margin-right: 4px;
-}
-.driver-tag.external { background: var(--tint-peach); color: #9a5b13; }
-.issue-text { font-size: 13px; color: var(--slate); }
+/* ─── 11. NEW PRODUCT ─── */
+.np-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.np-card{border-left:4px solid var(--orange);padding:20px}
+.np-card.purple-border{border-left-color:var(--purple)}
+.np-card h3 .emoji{margin-right:6px}
+.np-card ul{list-style:none;padding:0;margin-top:10px}
+.np-card li{font-size:.82rem;color:var(--secondary);padding:4px 0 4px 16px;position:relative}
+.np-card li::before{content:'→';position:absolute;left:0;color:var(--faint)}
+.np-note{font-size:.78rem;color:var(--muted);margin-top:10px;padding:8px 12px;background:#fafafa;border-radius:8px}
+.warn-banner{margin-top:20px;padding:16px 20px;border-radius:var(--radius);background:#fff8e1;border:1px solid #ffe082;font-size:.84rem;color:#6d4c00;line-height:1.7}
 
-/* ═══ Two col ═══ */
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px; }
+/* ─── 12. FOOTER ─── */
+.footer{text-align:center;padding:40px 0 48px;color:var(--faint);font-size:.78rem;border-top:1px solid var(--border);margin-top:40px}
+.footer strong{color:var(--muted)}
 
-/* ═══ Blockers ═══ */
-.blockers-card {
-  background: #fff8e1; border: 1px solid #f0e0a0;
-  border-radius: var(--r-lg); padding: 24px; box-shadow: var(--shadow-card);
+/* ─── RESPONSIVE ─── */
+@media(max-width:1024px){
+  .kpi-grid{grid-template-columns:repeat(3,1fr)}
+  .cost-grid,.np-grid{grid-template-columns:1fr}
+  .pers-grid{grid-template-columns:repeat(2,1fr)}
 }
-.blocker-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
-.blocker-item:last-child { border-bottom: none; }
-.blocker-num {
-  width: 24px; height: 24px; background: var(--warning); color: white;
-  border-radius: var(--r-full); display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700; flex-shrink: 0;
-}
-.blocker-text { font-size: 14px; color: var(--charcoal); line-height: 1.5; }
-.blocker-text .ws-ref { font-weight: 600; color: var(--brand-orange); }
-
-/* ═══ Milestones ═══ */
-.milestones-card {
-  background: var(--tint-mint); border: 1px solid #b8e6d0;
-  border-radius: var(--r-lg); padding: 24px; box-shadow: var(--shadow-card);
-}
-.milestone-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; }
-.milestone-check {
-  width: 20px; height: 20px; border: 2px solid var(--brand-green);
-  border-radius: var(--r-xs); flex-shrink: 0; margin-top: 1px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; color: var(--brand-green);
-}
-.milestone-check.done { background: var(--brand-green); color: white; }
-.milestone-text { font-size: 14px; color: var(--charcoal); line-height: 1.5; }
-
-/* ═══ PM Comment ═══ */
-.pm-comment {
-  background: var(--brand-navy-mid); color: var(--on-dark);
-  border-radius: var(--r-lg); padding: 24px 32px; margin-bottom: 40px;
-  display: flex; align-items: flex-start; gap: 16px; box-shadow: var(--shadow-card);
-}
-.pm-avatar {
-  width: 40px; height: 40px; border-radius: var(--r-full);
-  background: var(--brand-purple); display: flex; align-items: center; justify-content: center;
-  font-size: 16px; font-weight: 700; flex-shrink: 0;
-}
-.pm-comment-body { flex: 1; }
-.pm-comment-body .pm-name { font-size: 13px; font-weight: 600; color: var(--on-dark-muted); margin-bottom: 4px; }
-.pm-comment-body .pm-text { font-size: 16px; font-weight: 400; line-height: 1.55; }
-
-/* ═══ Loading ═══ */
-.loading {
-  text-align: center; padding: 80px 0; font-size: 16px; color: var(--steel);
-}
-.loading .spinner {
-  width: 32px; height: 32px; border: 3px solid var(--hairline);
-  border-top-color: var(--primary); border-radius: var(--r-full);
-  animation: spin 0.8s linear infinite; margin: 0 auto 16px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ═══ Footer ═══ */
-.footer { text-align: center; padding: 32px 0 48px; font-size: 12px; color: var(--steel); }
-
-/* Shared Items */
-.shared-card{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:16px 20px;margin-bottom:12px;box-shadow:var(--shadow-card)}
-.shared-card.decided{opacity:0.5}
-.shared-header{display:flex;align-items:flex-start;gap:10px}
-.shared-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:var(--r-full);flex-shrink:0;margin-top:2px}
-.shared-tag-info{background:var(--tint-sky);color:#1a5fa0}
-.shared-tag-decision{background:#fce4e4;color:#a0232a}
-.shared-content{flex:1;font-size:14px;color:var(--charcoal);line-height:1.55}
-.shared-actions{display:flex;align-items:center;gap:8px;margin-top:10px}
-.shared-btn{padding:6px 14px;border-radius:var(--r-md);font-size:12px;font-weight:600;border:none;cursor:pointer;transition:all .15s}
-.shared-btn-ack{background:var(--ink-deep);color:var(--on-dark)}
-.shared-btn-ack:hover{background:#333}
-.shared-btn-del{background:transparent;color:var(--stone);border:1px solid var(--hairline-strong);font-size:11px;padding:4px 10px}
-.shared-btn-del:hover{background:#fce4e4;color:#a0232a;border-color:#e8a0a0}
-.shared-btn-ack.done{background:var(--success);cursor:default}
-.shared-input{flex:1;padding:6px 10px;border:1px solid var(--hairline-strong);border-radius:var(--r-md);font-size:12px;font-family:inherit;color:var(--ink);outline:none}
-.shared-input:focus{border-color:var(--primary)}
-.shared-response{margin-top:8px;padding:8px 12px;background:var(--surface);border-radius:var(--r-md);font-size:13px;color:var(--slate);border-left:3px solid var(--primary)}
-.shared-time{font-size:11px;color:var(--stone);margin-top:6px}
-
-/* ═══ Responsive ═══ */
-@media (max-width: 1023px) {
-  .hero h1 { font-size: 40px; }
-  .summary-strip { grid-template-columns: repeat(2, 1fr); }
-  .two-col { grid-template-columns: 1fr; }
-}
-@media (max-width: 767px) {
-  .hero h1 { font-size: 32px; }
-  .summary-strip { grid-template-columns: 1fr; }
-  .page { padding: 0 16px; }
-  .hero-inner { padding: 0 16px; }
-  .ws-table-wrap { overflow-x: auto; }
-  .ws-table { min-width: 700px; }
+@media(max-width:640px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .pers-grid{grid-template-columns:1fr}
+  .role-grid{grid-template-columns:1fr}
+  .hero h1{font-size:1.5rem}
+  .wrap{padding:0 14px}
 }
 </style>
 </head>
 <body>
 
-<!-- Hero -->
+<!-- ═══════════════════ 1. HERO ═══════════════════ -->
 <section class="hero">
-  <div class="hero-inner">
-    <div class="date-badge">
-      <span class="dot"></span>
-      <span id="hero-date">Loading...</span>
-    </div>
-    <h1>BIOFOX Marketing<br>Dashboard</h1>
-    <p class="subtitle">8 Workstreams · PM 유언우 · 조대표님 보고용</p>
-    <div style="margin-top:16px;display:flex;gap:8px;justify-content:center;">
-      <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;color:white;background:#2383e2;border:1px solid #2383e2;text-decoration:none;">📊 L1 Executive</a>
-      <a href="ops.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;color:rgba(255,255,255,0.65);border:1px solid rgba(255,255,255,0.15);text-decoration:none;">⚙️ L2 Operations</a>
-      <a href="deep.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;color:rgba(255,255,255,0.65);border:1px solid rgba(255,255,255,0.15);text-decoration:none;">🔬 L3 Deep Dive</a>
-    </div>
+  <div class="sticker s1"></div><div class="sticker s2"></div><div class="sticker s3"></div>
+  <div class="sticker s4"></div><div class="sticker s5"></div><div class="sticker s6"></div>
+  <div class="wrap" style="position:relative;z-index:1">
+    <span class="hero-eyebrow">2026년 6월 – 9월 실행 계획</span>
+    <h1>BIOFOX 콘텐츠 전략 3개월 로드맵</h1>
+    <p class="sub"><em>11채널</em> × <em>1,220개</em> 콘텐츠 × 월 <em>500만원</em></p>
   </div>
 </section>
 
-<!-- Content -->
-<div class="page">
-
-  <!-- KPI Strip -->
-  <div class="summary-strip" id="kpi-strip">
-    <div class="loading"><div class="spinner"></div>데이터 로딩중...</div>
+<!-- ═══════════════════ 2. KPI CARDS ═══════════════════ -->
+<div class="wrap section" style="margin-top:32px">
+  <div class="kpi-grid">
+    <div class="card kpi"><div class="num">1,220<span style="font-size:.9rem;font-weight:500">개</span></div><div class="label">총 콘텐츠</div><div class="sub-label">챌린지 포함 시 2,000+</div></div>
+    <div class="card kpi"><div class="num">1,500<span style="font-size:.9rem;font-weight:500">만원</span></div><div class="label">3개월 총 예산</div><div class="sub-label">여유분 포함</div></div>
+    <div class="card kpi"><div class="num">~1.2<span style="font-size:.9rem;font-weight:500">만원/개</span></div><div class="label">콘텐츠 단가</div><div class="sub-label">대행사 평균 30~50만원</div></div>
+    <div class="card kpi"><div class="num">11<span style="font-size:.9rem;font-weight:500">개+</span></div><div class="label">운영 채널</div><div class="sub-label">인스타·유튜브·틱톡·스레드·클립</div></div>
+    <div class="card kpi"><div class="num">12<span style="font-size:.9rem;font-weight:500">주</span></div><div class="label">운영 기간</div><div class="sub-label">6월 셋째주 → 9월 중순</div></div>
   </div>
+</div>
 
-  <!-- WS Table -->
-  <!-- Shared Items -->
-  <h2 class="section-title" style="margin-top:0"><span class="icon">📨</span> 공유 드릴 사항 <button onclick="openHistory()" style="margin-left:auto;padding:4px 12px;border-radius:var(--r-md);font-size:12px;font-weight:500;border:1px solid var(--hairline-strong);background:var(--surface);color:var(--slate);cursor:pointer;transition:all .15s" onmouseover="this.style.background='var(--hairline)'" onmouseout="this.style.background='var(--surface)'">🕘 히스토리</button></h2>
-  <div id="shared-items" style="margin-bottom:40px">
-    <div class="loading"><div class="spinner"></div>로딩중...</div>
+<!-- ═══════════════════ 3. CHANNEL TABLE ═══════════════════ -->
+<div class="wrap section">
+  <h2>📊 채널별 콘텐츠 & 비용 브레이크다운</h2>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="tbl-wrap">
+      <table class="ch">
+        <thead>
+          <tr><th>채널</th><th>유형</th><th style="text-align:right">콘텐츠 수</th><th style="text-align:right">3개월 비용</th><th>담당</th><th>비중</th></tr>
+        </thead>
+        <tbody>
+          <!-- BIOFOX 오피셜 -->
+          <tr><td><strong>BIOFOX 오피셜 인스타</strong></td><td><span class="badge badge-self">자체</span></td><td style="text-align:right">12</td><td style="text-align:right">—</td><td>언우</td><td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:1%;background:var(--green)"></div></div></td></tr>
+          <!-- 스토리 -->
+          <tr><td><strong>BIOFOX 스토리</strong></td><td><span class="badge badge-out">외주</span></td><td style="text-align:right">224</td><td style="text-align:right">240만원</td><td>혜지+외주</td><td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:18%;background:var(--orange)"></div></div></td></tr>
+          <tr><td class="indent">└ 원장님 인터뷰 재편집 40→인유틱스 160</td><td></td><td style="text-align:right"></td><td style="text-align:right">120만원</td><td>편집외주</td><td></td></tr>
+          <tr><td class="indent">└ 에스테틱 매거진 카드뉴스 주2회</td><td></td><td style="text-align:right">24</td><td style="text-align:right">120만원</td><td>카드뉴스외주</td><td></td></tr>
+          <tr><td class="indent">└ 릴스+기존 콘텐츠 재가공</td><td></td><td style="text-align:right">40</td><td style="text-align:right">포함</td><td>편집외주</td><td></td></tr>
+          <!-- 조대표님 -->
+          <tr><td><strong>조대표님 개인계정</strong></td><td><span class="badge badge-agency">대행</span></td><td style="text-align:right">324</td><td style="text-align:right">330만원</td><td>마파+지환</td><td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:27%;background:var(--accent)"></div></div></td></tr>
+          <tr><td class="indent">└ 마파 인유틱스 4채널(인스타·유튜브·틱톡·스레드)</td><td></td><td style="text-align:right">300</td><td style="text-align:right">330만원</td><td>마파대행</td><td></td></tr>
+          <tr><td class="indent">└ 지환 브이로그 주2회</td><td></td><td style="text-align:right">24</td><td style="text-align:right">자체</td><td>지환</td><td></td></tr>
+          <!-- 송선미 -->
+          <tr><td><strong>송선미 캠페인</strong></td><td><span class="badge badge-out">외주</span></td><td style="text-align:right">36</td><td style="text-align:right">~60만원</td><td>혜지+지환</td><td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:3%;background:var(--pink)"></div></div></td></tr>
+          <tr><td class="indent">└ 유튜브 롱폼6+숏폼16~20(계약분)</td><td></td><td style="text-align:right">26</td><td style="text-align:right">별도계약</td><td>지환</td><td></td></tr>
+          <tr><td class="indent">└ 여배우 릴스 선물 2건→목표10건(건당3.5~5만)</td><td></td><td style="text-align:right">10</td><td style="text-align:right">~50만원</td><td>혜지</td><td></td></tr>
+          <!-- 에이징유 -->
+          <tr><td><strong>에이징유(Aging-U)</strong></td><td><span class="badge badge-out">외주</span></td><td style="text-align:right">216</td><td style="text-align:right">220만원</td><td>광원+외주</td><td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:18%;background:var(--teal)"></div></div></td></tr>
+          <tr><td class="indent">└ 유튜브 미들폼(주1)+숏폼(주3)+썸네일 세트</td><td></td><td style="text-align:right">48</td><td style="text-align:right">110만원</td><td>편집몬외주</td><td></td></tr>
+          <tr><td class="indent">└ 인유틱스 4채널 배포(주3×4채널×12주)</td><td></td><td style="text-align:right">144</td><td style="text-align:right">자동화</td><td>버퍼</td><td></td></tr>
+          <tr><td class="indent">└ 동안피부상식 카드뉴스(주2회)</td><td></td><td style="text-align:right">24</td><td style="text-align:right">110만원</td><td>카드뉴스외주</td><td></td></tr>
+          <!-- 레아주 -->
+          <tr><td><strong>레아주(Le Aju)</strong></td><td><span class="badge badge-agency">대행</span></td><td style="text-align:right">300</td><td style="text-align:right">330만원</td><td>마파대행</td><td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:25%;background:var(--sky)"></div></div></td></tr>
+          <tr><td class="indent">└ 마파 인유틱스 4채널(월100개×3개월)</td><td></td><td style="text-align:right">300</td><td style="text-align:right">110만/월</td><td>마파대행</td><td></td></tr>
+          <!-- 남궁혜지 -->
+          <tr><td><strong>남궁혜지</strong></td><td><span class="badge badge-self">자체</span></td><td style="text-align:right">12</td><td style="text-align:right">—</td><td>혜지</td><td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:1%;background:var(--purple)"></div></div></td></tr>
+          <tr><td class="indent">└ "에스테틱 회사 다니면 예뻐질까?" 시리즈(주1)</td><td></td><td style="text-align:right">12</td><td style="text-align:right">자체</td><td>혜지</td><td></td></tr>
+          <!-- 역노화 유튜브 -->
+          <tr><td><strong>역노화 유튜브(AI)</strong></td><td><span class="badge badge-self">자체</span></td><td style="text-align:right">36</td><td style="text-align:right">—</td><td>언우</td><td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:3%;background:var(--green)"></div></div></td></tr>
+          <!-- 메타 광고 -->
+          <tr><td><strong>메타 광고 소재(1차)</strong></td><td><span class="badge badge-out">외주</span></td><td style="text-align:right">6</td><td style="text-align:right">150만원</td><td>프리랜서</td><td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:1%;background:var(--orange)"></div></div></td></tr>
+          <!-- TOTAL -->
+          <tr class="total-row"><td><strong>TOTAL</strong></td><td></td><td style="text-align:right"><strong>1,220+</strong></td><td style="text-align:right"><strong>~1,500만원</strong></td><td></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
+</div>
 
-  <h2 class="section-title"><span class="icon">🚦</span> 8 Workstream Status</h2>
-  <div class="ws-table-wrap">
-    <table class="ws-table">
+<!-- ═══════════════════ 4. COST BREAKDOWN ═══════════════════ -->
+<div class="wrap section">
+  <h2>💰 비용 상세 & 가성비 비교</h2>
+  <div class="cost-grid">
+    <!-- Left: itemized -->
+    <div class="card">
+      <h3>항목별 비용</h3>
+      <div class="cost-item"><span class="dot" style="background:var(--accent)"></span>마파 대행 — 조대표(3개월)<span class="amt">330만원</span></div>
+      <div class="cost-item"><span class="dot" style="background:var(--sky)"></span>마파 대행 — 레아주(3개월)<span class="amt">330만원</span></div>
+      <div class="cost-item"><span class="dot" style="background:var(--orange)"></span>원장님 인터뷰 편집(40건)<span class="amt">120만원</span></div>
+      <div class="cost-item"><span class="dot" style="background:var(--pink)"></span>에스테틱 매거진 카드뉴스<span class="amt">120만원</span></div>
+      <div class="cost-item"><span class="dot" style="background:var(--teal)"></span>에이징유 편집 세트(11주)<span class="amt">110만원</span></div>
+      <div class="cost-item"><span class="dot" style="background:var(--green)"></span>에이징유 카드뉴스(12주)<span class="amt">110만원</span></div>
+      <div class="cost-item"><span class="dot" style="background:var(--purple)"></span>메타 광고 소재 1차(릴스3+카드3)<span class="amt">150만원</span></div>
+      <div class="cost-item"><span class="dot" style="background:var(--pink)"></span>송선미 릴스 선물(2건~)<span class="amt">~10만원</span></div>
+      <div class="cost-item"><span class="dot" style="background:var(--faint)"></span>여유분<span class="amt">~220만원</span></div>
+      <div class="cost-total"><span>합계</span><span>~1,500만원 <span style="font-weight:400;color:var(--muted);font-size:.82rem">(월평균 약 500만원)</span></span></div>
+    </div>
+    <!-- Right: comparison -->
+    <div>
+      <div class="card compare-card" style="margin-bottom:16px">
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:4px">우리 전략</div>
+        <div class="big" style="color:var(--accent)">1,500만원</div>
+        <div style="font-size:.82rem;color:var(--secondary);margin-top:4px">1,220개 콘텐츠 · 11채널 · 12주</div>
+      </div>
+      <div class="card compare-card" style="border-left-color:var(--faint);margin-bottom:16px">
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:4px">일반 대행사 견적</div>
+        <div class="big" style="color:var(--muted)">5,000만 ~ 1억원</div>
+        <div style="font-size:.82rem;color:var(--faint);margin-top:4px">동일 물량 기준</div>
+      </div>
+      <div style="text-align:center">
+        <span class="savings-pill">✓ 최소 3,500만원 절감</span>
+      </div>
+      <div class="card" style="margin-top:16px;text-align:center">
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:6px">콘텐츠 단가 비교</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:16px">
+          <div><div style="font-size:1.3rem;font-weight:800;color:var(--accent)">~1.2만원</div><div style="font-size:.7rem;color:var(--muted)">우리</div></div>
+          <div style="font-size:.85rem;color:var(--faint)">vs</div>
+          <div><div style="font-size:1.3rem;font-weight:800;color:var(--muted)">30~50만원</div><div style="font-size:.7rem;color:var(--faint)">대행사</div></div>
+        </div>
+        <div style="margin-top:10px;font-size:.82rem;font-weight:600;color:var(--green)">= 30~50× 가성비</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ 5. MULTIPLIER FLOW ═══════════════════ -->
+<div class="wrap section">
+  <h2>🔄 콘텐츠 증식 구조</h2>
+  <div class="card">
+    <div class="flow">
+      <div class="flow-step"><div class="num">1회</div><div class="txt">촬영</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="num">20개</div><div class="txt">숏폼 제작</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="num">5채널</div><div class="txt">배포</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="num">월100개</div><div class="txt">콘텐츠</div></div>
+      <div class="flow-arrow">=</div>
+      <div class="flow-result"><div class="num">100×</div><div class="txt">증식 배율</div></div>
+    </div>
+    <div class="flow-note">조대표님+레아주 적용 시 <strong>월 200개</strong>, 3개월 <strong>600개</strong></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ 6. GANTT TIMELINE ═══════════════════ -->
+<div class="wrap section">
+  <h2>📅 12주 타임라인</h2>
+  <div class="card" style="padding:12px;overflow:hidden">
+    <div class="gantt-wrap">
+      <table class="gantt">
+        <thead>
+          <tr>
+            <th style="text-align:left;min-width:110px">채널</th>
+            <th class="now">6/2W<br><span style="font-size:.55rem;color:var(--orange)">NOW</span></th>
+            <th>6/3W</th><th>6/4W</th><th>7/1W</th><th>7/2W</th><th>7/3W</th><th>7/4W</th><th>8/1W</th><th>8/2W</th><th>8/3W</th><th>8/4W</th><th>9/1W</th><th>9/2W</th><th>9/3W</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 오피셜 -->
+          <tr>
+            <td class="row-label">오피셜</td>
+            <td class="now-col"><span class="bar" style="background:var(--green);width:100%">무드보드</span></td>
+            <td><span class="bar" style="background:var(--green)">AI제작</span></td>
+            <td colspan="12" style="position:relative"><span class="bar" style="background:var(--green);width:98%">운영</span></td>
+          </tr>
+          <!-- 스토리 -->
+          <tr>
+            <td class="row-label">스토리</td>
+            <td class="now-col"><span class="bar" style="background:var(--orange)">구인</span></td>
+            <td><span class="bar" style="background:var(--orange)">초안</span></td>
+            <td colspan="12"><span class="bar" style="background:var(--orange);width:98%">업로드</span></td>
+          </tr>
+          <!-- 조대표 -->
+          <tr>
+            <td class="row-label">조대표님</td>
+            <td class="now-col"><span class="bar" style="background:var(--accent)">마파MTG</span></td>
+            <td><span class="bar" style="background:var(--accent)">촬영</span></td>
+            <td colspan="12"><span class="bar" style="background:var(--accent);width:98%">인유틱스 업로드</span></td>
+          </tr>
+          <!-- 송선미 -->
+          <tr>
+            <td class="row-label">송선미</td>
+            <td class="now-col"><span class="bar" style="background:var(--pink)">기획검토</span></td>
+            <td><span class="bar" style="background:var(--pink)">일정잡기</span></td>
+            <td><span class="bar" style="background:var(--pink)">촬영~30일</span></td>
+            <td><span class="bar" style="background:var(--pink)">1편UP</span></td>
+            <td colspan="10"><span class="bar" style="background:var(--pink);width:98%">롱폼 배포</span></td>
+          </tr>
+          <!-- 에이징유 -->
+          <tr>
+            <td class="row-label">에이징유</td>
+            <td class="now-col"><span class="bar" style="background:var(--teal)">편집자찾기</span></td>
+            <td colspan="13"><span class="bar" style="background:var(--teal);width:98%">주4건 업로드</span></td>
+          </tr>
+          <!-- 레아주 -->
+          <tr>
+            <td class="row-label">레아주</td>
+            <td class="now-col"><span class="bar" style="background:var(--sky)">마파세팅</span></td>
+            <td colspan="13"><span class="bar" style="background:var(--sky);width:98%">인유틱스 업로드</span></td>
+          </tr>
+          <!-- KOL -->
+          <tr>
+            <td class="row-label">KOL·마이크로</td>
+            <td class="now-col"></td>
+            <td></td><td></td>
+            <td><span class="bar" style="background:var(--purple)">섭외</span></td>
+            <td colspan="10"><span class="bar" style="background:var(--purple);width:98%">시딩</span></td>
+          </tr>
+          <!-- 메타 광고 -->
+          <tr>
+            <td class="row-label">메타 광고</td>
+            <td class="now-col"></td>
+            <td></td>
+            <td><span class="bar" style="background:var(--orange)">소재제작</span></td>
+            <td><span class="bar" style="background:var(--orange)">13만 테스트</span></td>
+            <td colspan="3"><span class="bar" style="background:var(--orange);width:98%">150만 스케일</span></td>
+            <td colspan="7"><span class="bar" style="background:#d84315;width:98%">300만~1,000만</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ 7. ROLE ASSIGNMENT ═══════════════════ -->
+<div class="wrap section">
+  <h2>👥 역할 배분</h2>
+  <div class="role-grid">
+    <div class="card role-card" style="border-left-color:var(--pink)">
+      <h4>남궁혜지</h4><div class="title">CMO · 마케팅 총괄 디렉터</div>
+      <ul>
+        <li>큰 그림 기획 · 채널 전략</li>
+        <li>송선미 케어 · 릴스 디렉팅</li>
+        <li>외주 관리 · 캡션 피드백</li>
+        <li>남궁혜지 시리즈 직접 제작</li>
+        <li>조대표 B2C 방향 설득</li>
+      </ul>
+    </div>
+    <div class="card role-card" style="border-left-color:var(--green)">
+      <h4>유언우</h4><div class="title">PM · AI/시스템</div>
+      <ul>
+        <li>BIOFOX 오피셜 AI 제작</li>
+        <li>역노화 유튜브 AI 운영</li>
+        <li>보고 대시보드 개발</li>
+        <li>원장님 챌린지 관리(→이관)</li>
+        <li>캡션 AI 초안 작성</li>
+      </ul>
+    </div>
+    <div class="card role-card" style="border-left-color:var(--accent)">
+      <h4>지환</h4><div class="title">촬영 · 기획</div>
+      <ul>
+        <li>조대표 브이로그 촬영 · 편집</li>
+        <li>송선미 캠페인 기획 · 촬영</li>
+        <li>마이크로 인플 컨택</li>
+        <li>에이징유 촬영 동행</li>
+      </ul>
+    </div>
+    <div class="card role-card" style="border-left-color:var(--teal)">
+      <h4>정광원</h4><div class="title">에이징유 채널 · 영업</div>
+      <ul>
+        <li>에이징유 촬영+업로드</li>
+        <li>전문점 영업(본업)</li>
+        <li>버퍼 자동 발행 관리</li>
+      </ul>
+    </div>
+    <div class="card role-card" style="border-left-color:var(--sky)">
+      <h4>마파(대행사)</h4><div class="title">인유틱스 대행 · 월 200개</div>
+      <ul>
+        <li>조대표 월100개(5채널)</li>
+        <li>레아주 월100개(5채널)</li>
+        <li>월1회 촬영→콘텐츠 20개 제작</li>
+        <li>네이버 클립까지 확장 요청</li>
+      </ul>
+    </div>
+    <div class="card role-card" style="border-left-color:var(--orange)">
+      <h4>편집 외주</h4><div class="title">편집몬 · 크몽</div>
+      <ul>
+        <li>에이징유 미들폼+숏폼+썸네일</li>
+        <li>원장님 인터뷰 재편집 40건</li>
+        <li>인유틱스 업로드 대행</li>
+      </ul>
+    </div>
+    <div class="card role-card" style="border-left-color:var(--purple)">
+      <h4>카드뉴스 외주</h4><div class="title">뉴뉴 · 수강생</div>
+      <ul>
+        <li>에스테틱 매거진 성공법(주2)</li>
+        <li>동안피부상식 정보(주2)</li>
+        <li>건당 5만원 · 월 약 40만원</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ 8. AD SCALE-UP ═══════════════════ -->
+<div class="wrap section">
+  <h2>📈 메타 광고 스케일업 로드맵</h2>
+  <div class="card">
+    <div class="ad-bars">
+      <div class="ad-col"><div class="ad-bar" style="height:20px;background:var(--teal)">13만</div><div class="ad-label">6월</div></div>
+      <div class="ad-col"><div class="ad-bar" style="height:55px;background:var(--accent)">150만</div><div class="ad-label">7월</div></div>
+      <div class="ad-col"><div class="ad-bar" style="height:90px;background:var(--orange)">300만</div><div class="ad-label">8월</div></div>
+      <div class="ad-col"><div class="ad-bar" style="height:140px;background:#d84315">1,000만</div><div class="ad-label">9월</div></div>
+      <div class="ad-col"><div class="ad-bar" style="height:180px;background:var(--indigo)">3,000만</div><div class="ad-label">10월~</div></div>
+    </div>
+    <div class="ad-target">
+      <div class="big">이지폴로지 벤치마킹 — 월 3,000만 → 월 5억+ (이지에폴로지 실적)</div>
+      <div class="sm">단계적 스케일업으로 ROAS 검증 후 확대</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ 9. PERSUASION CARDS ═══════════════════ -->
+<div class="wrap section">
+  <h2>🎯 핵심 전략 3가지</h2>
+  <div class="pers-grid">
+    <div class="card pers-card">
+      <div class="emoji">📦</div>
+      <div class="big" style="color:var(--accent)">1,220개</div>
+      <div class="label">개수로 승부</div>
+      <div class="desc">3개월간 콘텐츠 공장 가동</div>
+    </div>
+    <div class="card pers-card">
+      <div class="emoji">🧑‍🤝‍🧑</div>
+      <div class="big" style="color:var(--pink)">4명</div>
+      <div class="label">사람 냄새</div>
+<div class="desc">조대표 워너비언니 · 혜지 임플로이언서<br>송선미 '리즈시절로 돌아왔다'<br>과정 = AI가 못하는 영역</div>
+    </div>
+    <div class="card pers-card">
+      <div class="emoji">🔁</div>
+      <div class="big" style="color:var(--teal)">100×</div>
+      <div class="label">자동 증식</div>
+      <div class="desc">촬영 1회→20개 제작→5채널 배포</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ 10. IMMEDIATE TODO ═══════════════════ -->
+<div class="wrap section">
+  <h2>✅ 이번 주 즉시 실행 <span style="font-size:.85rem;color:var(--muted);font-weight:500">6월 둘째주</span></h2>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="todo">
       <thead>
-        <tr>
-          <th style="width:24%">워크스트림</th>
-          <th style="width:13%">상태</th>
-          <th style="width:20%">진척</th>
-          <th style="width:13%">담당</th>
-          <th style="width:30%">핵심 이슈</th>
-        </tr>
+        <tr><th style="width:30px">#</th><th>액션</th><th>담당</th><th>마감</th></tr>
       </thead>
-      <tbody id="ws-tbody">
-        <tr><td colspan="5" class="loading"><div class="spinner"></div>데이터 로딩중...</td></tr>
+      <tbody>
+        <tr><td><span class="chk"></span></td><td>BIOFOX 오피셜 무드보드 확정</td><td>혜지</td><td>6/13</td></tr>
+        <tr><td><span class="chk"></span></td><td>오피셜 인스타 6개 AI 제작</td><td>언우</td><td>6/13</td></tr>
+        <tr><td><span class="chk"></span></td><td>편집몬 구인(크몽/편집몬)</td><td>혜지</td><td>6/10</td></tr>
+        <tr><td><span class="chk"></span></td><td>마파 미팅 잡기</td><td>혜지</td><td>6/13</td></tr>
+        <tr><td><span class="chk"></span></td><td>지환 줌 미팅</td><td>혜지+언우</td><td>6/13</td></tr>
+        <tr><td><span class="chk"></span></td><td>송선미 촬영 일정 확정</td><td>혜지</td><td>6/13</td></tr>
+        <tr><td><span class="chk"></span></td><td>에이징유 편집자 찾기</td><td>언우+혜지</td><td>6/13</td></tr>
+        <tr><td><span class="chk"></span></td><td>카드뉴스 외주 컨택</td><td>혜지</td><td>6/13</td></tr>
+        <tr><td><span class="chk"></span></td><td>혜지 명함 제작</td><td>혜지</td><td>송선미 미팅 전</td></tr>
+        <tr><td><span class="chk"></span></td><td>계정 To-Do 정리(채널 세팅)</td><td>언우</td><td>6/13</td></tr>
       </tbody>
     </table>
   </div>
-
-  <!-- Blockers + Milestones -->
-  <div class="two-col">
-    <div>
-      <h2 class="section-title"><span class="icon">🔴</span> Top Blockers</h2>
-      <div class="blockers-card" id="blockers-card">
-        <div class="loading"><div class="spinner"></div></div>
-      </div>
-    </div>
-    <div>
-      <h2 class="section-title"><span class="icon">📅</span> 이번 주 마일스톤</h2>
-      <div class="milestones-card" id="milestones-card">
-        <div class="loading"><div class="spinner"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PM Comment -->
-  <div class="pm-comment" id="pm-comment" style="display:none;">
-    <div class="pm-avatar">유</div>
-    <div class="pm-comment-body">
-      <div class="pm-name" id="pm-name"></div>
-      <div class="pm-text" id="pm-text"></div>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <div class="footer" id="footer">BIOFOX Marketing · Loading...</div>
 </div>
 
-<!-- History Modal -->
-<div id="history-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center" onclick="if(event.target===this)closeHistory()">
-  <div style="background:var(--canvas);border-radius:var(--r-lg);width:90%;max-width:640px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--hairline)">
-      <h3 style="font-size:16px;font-weight:600;color:var(--ink)">🕘 공유 히스토리</h3>
-      <button onclick="closeHistory()" style="border:none;background:none;cursor:pointer;font-size:18px;color:var(--slate);padding:4px">✕</button>
+<!-- ═══════════════════ 11. 신제품 촬영 & 상세페이지 ═══════════════════ -->
+<div class="wrap section">
+  <h2>📸 신제품 촬영 & 상세페이지 <span class="pill" style="background:#fff3e0;color:var(--orange);vertical-align:middle;font-size:.7rem">별도 프로젝트</span></h2>
+  <div class="np-grid">
+    <div class="card np-card">
+      <h3><span class="emoji">🎬</span> 신제품 촬영</h3>
+      <p style="font-size:.84rem;color:var(--secondary)">8ppm 미스트(B2C 주력) 등 신제품 라인업 제품 촬영</p>
+      <ul>
+        <li>제품 컷(누끼, 감성컷, 텍스처)</li>
+        <li>모델 사용 장면</li>
+        <li>광고 소재용 영상 클립</li>
+        <li>SNS 피드용 비주얼 에셋</li>
+      </ul>
+      <div class="np-note">💡 예상 범위 별도 견적</div>
     </div>
-    <div id="history-content" style="padding:16px 20px;overflow-y:auto;flex:1">
-      <div class="loading"><div class="spinner"></div></div>
+    <div class="card np-card purple-border">
+      <h3><span class="emoji">📄</span> 상세페이지 제작</h3>
+      <p style="font-size:.84rem;color:var(--secondary)">자사몰 · 스마트스토어 구매 전환용 상세페이지</p>
+      <ul>
+        <li>8ppm 미스트 상세페이지</li>
+        <li>리버스에이징 라인</li>
+        <li>성분 · 임상 · 사용법 인포그래픽</li>
+        <li>리뷰/비포애프터 섹션</li>
+      </ul>
+      <div class="np-note">💡 예상 범위 별도 견적</div>
     </div>
+  </div>
+  <div class="warn-banner">
+    ⚠️ <strong>콘텐츠 전략 1,500만원과 별도 예산입니다.</strong> 신제품 촬영·상세페이지는 B2C 매출과 직결되므로 광고 스케일업 전에 반드시 완료. 송선미 콘텐츠에서 제품이 노출되려면 제품 비주얼 에셋이 먼저 준비되어야 합니다.
   </div>
 </div>
 
-<script>
-// ═══════════════════════════════════════════
-// Supabase Config
-// ═══════════════════════════════════════════
-const SUPABASE_URL = 'https://ldqvreaivjrvrvpitcqx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkcXZyZWFpdmpydnJ2cGl0Y3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyOTEzMDYsImV4cCI6MjA3Njg2NzMwNn0.GMpmq4tal4kvcW6_P_LOxCWc8XrVh6LX51sQ2L5WyEQ';
+<!-- ═══════════════════ 12. FOOTER ═══════════════════ -->
+<footer class="footer">
+  <div class="wrap">
+    <strong>BIOFOX 콘텐츠 전략 대시보드</strong> · 2026년 6월 9일 작성<br>
+총 1,220개+ 콘텐츠 · 11채널 · 12주 · 1,500만원 · 콘텐츠 1개당 ~1.2만원
+  </div>
+</footer>
 
-async function supaFetch(table, query = '') {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`, {
-    headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      'Content-Type': 'application/json'
-    }
-  });
-  if (!res.ok) throw new Error(`${table}: ${res.status}`);
-  return res.json();
-}
-
-// ═══════════════════════════════════════════
-// Renderers
-// ═══════════════════════════════════════════
-
-function renderKPI(metrics) {
-  const strip = document.getElementById('kpi-strip');
-  metrics.sort((a, b) => a.sort_order - b.sort_order);
-  strip.innerHTML = metrics.map(m => `
-    <div class="summary-card">
-      <div class="label">${esc(m.label)}</div>
-      <div class="value ${esc(m.color)}">${esc(m.value)}</div>
-      <div class="sub">${esc(m.sub_text)}</div>
-    </div>
-  `).join('');
-}
-
-function renderWS(rows) {
-  const tbody = document.getElementById('ws-tbody');
-  rows.sort((a, b) => a.id - b.id);
-  tbody.innerHTML = rows.map(ws => {
-    const drivers = ws.driver.split('+').map(d => {
-      const trimmed = d.trim();
-      const isExt = ws.driver_type === 'external' || ['대행사', '광원', '지환'].includes(trimmed);
-      return `<span class="driver-tag${isExt ? ' external' : ''}">${esc(trimmed)}</span>`;
-    }).join('');
-
-    return `
-      <tr class="ws-row" onclick="toggleWsDetail(this, ${ws.id})">
-        <td><span class="ws-name"><span class="ws-icon">${ws.icon}</span> ${esc(ws.name)}</span></td>
-        <td><span class="status-badge status-${ws.status}"><span class="dot"></span>${esc(ws.status_label)}</span></td>
-        <td>
-          <div class="progress-bar-wrap">
-            <div class="progress-bar"><div class="fill fill-${ws.status}" style="width:${ws.progress}%"></div></div>
-            <span class="progress-pct">${ws.progress}%</span>
-          </div>
-        </td>
-        <td>${drivers}</td>
-        <td><span class="issue-text">${esc(ws.issue_text)}</span></td>
-      </tr>
-      <tr class="ws-detail-row" id="ws-detail-${ws.id}" style="display:none">
-        <td colspan="5">
-          <div class="ws-detail" id="ws-detail-content-${ws.id}">
-            <div class="ws-detail-empty">로딩중...</div>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-// WS detail cache
-const wsDetailCache = {};
-
-async function toggleWsDetail(row, wsId) {
-  const detailRow = document.getElementById('ws-detail-' + wsId);
-  const isOpen = row.classList.contains('open');
-
-  // Close all other open details
-  document.querySelectorAll('.ws-row.open').forEach(r => {
-    if (r !== row) {
-      r.classList.remove('open');
-      const otherId = r.getAttribute('onclick').match(/(\d+)/)?.[1];
-      if (otherId) document.getElementById('ws-detail-' + otherId).style.display = 'none';
-    }
-  });
-
-  if (isOpen) {
-    row.classList.remove('open');
-    detailRow.style.display = 'none';
-    return;
-  }
-
-  row.classList.add('open');
-  detailRow.style.display = '';
-
-  // Fetch if not cached
-  if (!wsDetailCache[wsId]) {
-    const actions = await supaFetch('dashboard_actions', `?ws_id=eq.${wsId}&order=is_sub,parent_issue_id,id`);
-    wsDetailCache[wsId] = actions;
-  }
-  renderWsDetail(wsId, wsDetailCache[wsId]);
-}
-
-function renderWsDetail(wsId, actions) {
-  const container = document.getElementById('ws-detail-content-' + wsId);
-  const parents = actions.filter(a => !a.is_sub);
-  const subs = actions.filter(a => a.is_sub);
-
-  if (parents.length === 0) {
-    container.innerHTML = '<div class="ws-detail-empty">이슈 없음</div>';
-    return;
-  }
-
-  container.innerHTML = parents.map(p => {
-    const children = subs.filter(s => s.parent_issue_id === p.linear_issue_id);
-    const doneCount = children.filter(c => c.status === 'done').length;
-    const dots = children.map(c =>
-      `<span class="dot-mini dot-${c.status}"></span>`
-    ).join('');
-
-    const subHtml = children.length > 0
-      ? children.map(s => {
-          const statusColor = s.status === 'done' ? 'var(--success)' : s.status === 'in_progress' ? 'var(--primary)' : 'var(--hairline-strong)';
-          const statusLabel = s.status === 'done' ? '완료' : s.status === 'in_progress' ? '진행중' : 'Todo';
-          const due = s.due_date ? s.due_date.slice(5) : '';
-          return `<div class="sub-item">
-            <span class="sub-dot" style="background:${statusColor}"></span>
-            <span class="sub-title">${esc(s.title)}</span>
-            <span class="sub-status" style="color:${statusColor}">${statusLabel}</span>
-            <span class="sub-due">${due}</span>
-            <span class="sub-id">${esc(s.linear_issue_id)}</span>
-          </div>`;
-        }).join('')
-      : '<div class="sub-item" style="color:var(--stone)">sub-issue 없음</div>';
-
-    const statusCls = p.status === 'done' ? 'done' : p.status === 'in_progress' ? 'in_progress' : 'todo';
-    const statusLabel = p.status === 'done' ? '완료' : p.status === 'in_progress' ? '진행중' : 'Todo';
-
-    return `
-      <div class="parent-row" onclick="this.classList.toggle('open')">
-        <span class="parent-arrow">▶</span>
-        <span class="parent-title">${esc(p.title)}</span>
-        <span class="parent-dots">${dots}</span>
-        <span class="parent-status parent-status-${statusCls}">${statusLabel}</span>
-        <span class="parent-id">${esc(p.linear_issue_id)}</span>
-        <span style="font-size:11px;color:var(--stone)">${doneCount}/${children.length}</span>
-      </div>
-      <div class="sub-list">${subHtml}</div>
-    `;
-  }).join('');
-}
-
-function renderBlockers(blockers) {
-  const card = document.getElementById('blockers-card');
-  const active = blockers.filter(b => !b.resolved);
-  active.sort((a, b) => a.rank - b.rank);
-  if (active.length === 0) {
-    card.innerHTML = '<div style="padding:16px;text-align:center;color:var(--steel);">🎉 블로커 없음!</div>';
-    return;
-  }
-  card.innerHTML = active.map(b => `
-    <div class="blocker-item">
-      <span class="blocker-num">${b.rank}</span>
-      <span class="blocker-text"><span class="ws-ref">${esc(b.ws_ref)}</span> — ${esc(b.description)}</span>
-    </div>
-  `).join('');
-}
-
-function renderSnapshot(snapshot) {
-  const milCard = document.getElementById('milestones-card');
-  const pmComment = document.getElementById('pm-comment');
-
-  if (!snapshot) {
-    milCard.innerHTML = '<div style="padding:16px;text-align:center;color:var(--steel);">스냅샷 없음</div>';
-    return;
-  }
-
-  const milestones = snapshot.milestones || [];
-  milCard.innerHTML = milestones.map(m => `
-    <div class="milestone-item">
-      <span class="milestone-check${m.done ? ' done' : ''}">${m.done ? '✓' : '—'}</span>
-      <span class="milestone-text">${esc(m.text)}</span>
-    </div>
-  `).join('');
-
-  if (snapshot.pm_comment) {
-    pmComment.style.display = 'flex';
-    document.getElementById('pm-name').textContent = `${snapshot.pm_name} · 주간 코멘트`;
-    document.getElementById('pm-text').textContent = snapshot.pm_comment;
-  }
-}
-
-function esc(str) {
-  if (!str) return '';
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function formatDate(d) {
-  const days = ['일','월','화','수','목','금','토'];
-  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${days[d.getDay()]}) 기준`;
-}
-
-// ═══════════════════════════════════════════
-// Init
-// ═══════════════════════════════════════════
-async function init() {
-  try {
-    const [kpis, ws, blockers, snapshots] = await Promise.all([
-      supaFetch('dashboard_kpi_metrics', '?order=sort_order'),
-      supaFetch('dashboard_ws_status', '?order=id'),
-      supaFetch('dashboard_blockers', '?order=rank'),
-      supaFetch('dashboard_weekly_snapshot', '?order=week_start.desc&limit=1'),
-    ]);
-
-    renderKPI(kpis);
-    renderWS(ws);
-    renderBlockers(blockers);
-    renderSnapshot(snapshots[0] || null);
-
-    // Shared items
-    const shared = await supaFetch('dashboard_shared_items', '?order=created_at.desc');
-    renderShared(shared);
-
-    // Update date
-    const now = new Date();
-    document.getElementById('hero-date').textContent = formatDate(now);
-    document.getElementById('footer').textContent =
-      `BIOFOX Marketing · Last updated: ${now.toISOString().slice(0,16).replace('T',' ')} · PM: eonwoo yoo`;
-
-  } catch (err) {
-    console.error('Dashboard load failed:', err);
-    document.getElementById('kpi-strip').innerHTML =
-      `<div class="loading" style="grid-column:1/-1;color:var(--error);">❌ 데이터 로드 실패: ${esc(err.message)}</div>`;
-  }
-}
-
-init();
-
-// ═══ Shared Items ═══
-function renderShared(items) {
-  const el = document.getElementById('shared-items');
-  // L1에선 미확인 항목만 표시 (확인된 건 히스토리에서)
-  const active = items ? items.filter(i => !i.acknowledged) : [];
-  if (active.length === 0) {
-    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--steel);font-size:14px">새 공유 사항 없음</div>';
-    return;
-  }
-
-  el.innerHTML = active.map(item => {
-    const tag = item.is_decision
-      ? '<span class="shared-tag shared-tag-decision">의사결정 요청</span>'
-      : '<span class="shared-tag shared-tag-info">공유</span>';
-
-    const ackBtn = item.acknowledged
-      ? '<span class="shared-btn shared-btn-ack done">✓ 확인됨</span>'
-      : `<button class="shared-btn shared-btn-ack" onclick="ackItem(${item.id}, this)">확인</button>`;
-
-    const responseArea = item.is_decision
-      ? (item.response
-        ? `<div class="shared-response">💬 ${esc(item.response)}</div>`
-        : (item.acknowledged
-          ? ''
-          : `<div class="shared-actions">
-              <input class="shared-input" id="resp-${item.id}" placeholder="의견을 입력해주세요..." onkeydown="if(event.key==='Enter')submitResp(${item.id})"/>
-              <button class="shared-btn" style="background:var(--primary);color:white" onclick="submitResp(${item.id})">전송</button>
-            </div>`))
-      : '';
-
-    const timeStr = item.acknowledged_at
-      ? `<div class="shared-time">✓ ${new Date(item.acknowledged_at).toLocaleString('ko-KR')}</div>`
-      : '';
-
-    return `<div class="shared-card${item.acknowledged?' decided':''}" id="shared-${item.id}">
-      <div class="shared-header">
-        ${tag}
-        <div class="shared-content">${esc(item.content)}</div>
-        ${ackBtn}
-        <button class="shared-btn shared-btn-del" onclick="deleteItem(${item.id}, this)" title="삭제">🗑</button>
-      </div>
-      ${responseArea}
-      ${timeStr}
-    </div>`;
-  }).join('');
-}
-
-async function ackItem(id, btn) {
-  btn.textContent = '...';
-  btn.disabled = true;
-  await fetch(`${SUPABASE_URL}/rest/v1/dashboard_shared_items?id=eq.${id}`, {
-    method: 'PATCH',
-    headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
-    },
-    body: JSON.stringify({ acknowledged: true, acknowledged_at: new Date().toISOString() })
-  });
-  btn.textContent = '✓ 확인됨';
-  btn.classList.add('done');
-  btn.closest('.shared-card').classList.add('decided');
-}
-
-async function submitResp(id) {
-  const input = document.getElementById('resp-'+id);
-  const text = input.value.trim();
-  if (!text) return;
-  input.disabled = true;
-
-  await fetch(`${SUPABASE_URL}/rest/v1/dashboard_shared_items?id=eq.${id}`, {
-    method: 'PATCH',
-    headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
-    },
-    body: JSON.stringify({ response: text, acknowledged: true, acknowledged_at: new Date().toISOString() })
-  });
-
-  // Re-render
-  const shared = await supaFetch('dashboard_shared_items', '?order=created_at.desc');
-  renderShared(shared);
-}
-
-async function deleteItem(id, btn) {
-  if (!confirm('삭제하시겠습니까?')) return;
-  btn.textContent = '...';
-  btn.disabled = true;
-  await fetch(`${SUPABASE_URL}/rest/v1/dashboard_shared_items?id=eq.${id}`, {
-    method: 'DELETE',
-    headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-    }
-  });
-  const card = document.getElementById('shared-'+id);
-  if (card) {
-    card.style.transition = 'all .3s ease';
-    card.style.opacity = '0';
-    card.style.transform = 'translateX(20px)';
-    setTimeout(() => card.remove(), 300);
-  }
-}
-
-// ═══ History Modal ═══
-async function openHistory() {
-  const overlay = document.getElementById('history-overlay');
-  overlay.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-
-  const el = document.getElementById('history-content');
-  el.innerHTML = '<div class="loading"><div class="spinner"></div>로딩중...</div>';
-
-  const items = await supaFetch('dashboard_shared_items', '?order=created_at.desc&limit=50');
-  const acknowledged = items.filter(i => i.acknowledged);
-  const pending = items.filter(i => !i.acknowledged);
-
-  if (items.length === 0) {
-    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--steel)">히스토리 없음</div>';
-    return;
-  }
-
-  const renderItem = (item) => {
-    const tag = item.is_decision
-      ? '<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px;background:#fce4e4;color:#a0232a">의사결정</span>'
-      : '<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px;background:#dbeafe;color:#1a5fa0">공유</span>';
-    const time = new Date(item.created_at).toLocaleString('ko-KR', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
-    const ackTime = item.acknowledged_at
-      ? `<div style="font-size:11px;color:var(--success);margin-top:4px">✓ 확인: ${new Date(item.acknowledged_at).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>`
-      : '';
-    const resp = item.response
-      ? `<div style="margin-top:6px;padding:6px 10px;background:var(--surface);border-radius:var(--r-md);font-size:12px;color:var(--slate);border-left:3px solid var(--primary)">💬 ${esc(item.response)}</div>`
-      : '';
-    return `<div style="padding:10px 0;border-bottom:1px solid var(--hairline-soft)">
-      <div style="display:flex;align-items:center;gap:8px">
-        ${tag}
-        <span style="flex:1;font-size:13px;color:var(--charcoal)">${esc(item.content)}</span>
-        <span style="font-size:11px;color:var(--stone);flex-shrink:0">${time}</span>
-      </div>
-      ${ackTime}${resp}
-    </div>`;
-  };
-
-  let html = '';
-  if (pending.length > 0) {
-    html += `<div style="font-size:12px;font-weight:600;color:var(--warning);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">⏳ 대기중 (${pending.length})</div>`;
-    html += pending.map(renderItem).join('');
-  }
-  if (acknowledged.length > 0) {
-    html += `<div style="font-size:12px;font-weight:600;color:var(--success);margin:16px 0 8px;text-transform:uppercase;letter-spacing:0.5px">✅ 확인 완료 (${acknowledged.length})</div>`;
-    html += acknowledged.map(renderItem).join('');
-  }
-
-  el.innerHTML = html;
-}
-
-function closeHistory() {
-  document.getElementById('history-overlay').style.display = 'none';
-  document.body.style.overflow = '';
-}
-</script>
 </body>
 </html>
