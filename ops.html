@@ -150,7 +150,7 @@ a{color:var(--primary);text-decoration:none}a:hover{text-decoration:underline}
 
 <section class="hero">
   <div class="hero-inner">
-    <div><h1>PM Operations</h1><p class="subtitle" id="hero-date">Loading...</p></div>
+    <div><h1>PM Operations</h1><p class="subtitle" id="hero-date">8 WS · 1,220개 콘텐츠 · 24채널</p></div>
     <div style="display:flex;align-items:center;gap:16px">
       <nav class="hero-nav">
         <a href="index.html">📊 L1 Executive</a>
@@ -228,8 +228,8 @@ a{color:var(--primary);text-decoration:none}a:hover{text-decoration:underline}
 <script>
 const SB_URL='https://ldqvreaivjrvrvpitcqx.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkcXZyZWFpdmpydnJ2cGl0Y3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyOTEzMDYsImV4cCI6MjA3Njg2NzMwNn0.GMpmq4tal4kvcW6_P_LOxCWc8XrVh6LX51sQ2L5WyEQ';
-const WS_NAMES={1:'①챌린지',2:'②시딩',3:'③송선미',4:'④메디샷',5:'⑤퍼포먼스',6:'⑥AI',7:'⑦보고',8:'⑧에이징유'};
-const WS_ICONS={1:'🔥',2:'🌱',3:'⭐',4:'💉',5:'📈',6:'🤖',7:'📋',8:'📺'};
+const WS_NAMES={1:'①오피셜',2:'②스토리',3:'③조대표',4:'④송선미',5:'⑤에이징유',6:'⑥레아주',7:'⑦광고',8:'⑧인프라'};
+const WS_ICONS={1:'🔵',2:'🟣',3:'🟢',4:'🩷',5:'🟠',6:'🔷',7:'📢',8:'⚙️'};
 const DAY_NAMES=['일','월','화','수','목','금','토'];
 
 async function sf(t,q=''){const r=await fetch(`${SB_URL}/rest/v1/${t}${q}`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}});return r.json();}
